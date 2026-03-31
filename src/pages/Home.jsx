@@ -1,15 +1,10 @@
 import { ArrowRight } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
 export default function Home(){
     return (
         <div className="min-h-screen bg-gray-50">
-            <nav className="p-6 flex justify-between items-center bg-white shadow-sm">
-                <h1 className="text-2xl font-bold text-blue-600">TimeWork</h1>
-                    <div className="space-x-4">
-                    <a href="/signin" className="text-gray-600 hover:text-blue-600">Connexion</a>
-                    <a href="/signup" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Essai Gratuit</a>
-                </div>
-            </nav>
+            <Navbar />
 
             <main className="max-w-6xl mx-auto mt-20 px-6 text-center">
                 <h2 className="text-5xl font-extrabold text-gray-900 mb-6">

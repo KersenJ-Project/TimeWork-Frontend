@@ -14,6 +14,7 @@ export default function SignUp(){
     email: '',
     password: ''
   });
+
   const navigate = useNavigate;
 
   const handleSubmit = async (e) => {
