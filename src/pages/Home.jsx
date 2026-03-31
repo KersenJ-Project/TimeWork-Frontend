@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 
-const Home = () => {
+export default function Home(){
     return (
         <div className="min-h-screen bg-gray-50">
             <nav className="p-6 flex justify-between items-center bg-white shadow-sm">
@@ -25,5 +25,3 @@ const Home = () => {
         </div>
     );
 };
-
-export default Home;

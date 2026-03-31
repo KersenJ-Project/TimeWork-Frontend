@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
   withCredentials: true,
 });
 
-const SignUp = () => {
+export default function SignUp(){
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: ''
   });
+  const navigate = useNavigate;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +24,7 @@ const SignUp = () => {
 
       if (response.status === 201 || response.status === 200) {
         console.log("Utilisateur créé !", response.data);
+        navigate('/signin')
       }
     } catch (error) {
       console.error("Erreur back-end :", error.response?.data?.message || error.message);
@@ -87,5 +90,3 @@ const SignUp = () => {
     </div>
   );
 };
-
-export default SignUp;

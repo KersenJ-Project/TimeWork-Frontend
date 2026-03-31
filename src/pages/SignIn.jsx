@@ -7,7 +7,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-const SignIn = () => {
+export default function SignIn(){
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -74,5 +74,3 @@ const SignIn = () => {
     </div>
   );
 };
-
-export default SignIn;
