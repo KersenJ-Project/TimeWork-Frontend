@@ -1,12 +1,10 @@
 import { ArrowRight } from 'lucide-react';
-import Navbar from '../components/Navbar';
 
 export default function Home(){
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Navbar />
+        <div className="min-h-screen min-w-screen bg-gray-50">
 
-            <main className="max-w-6xl mx-auto mt-20 px-6 text-center">
+            <main className="mx-auto mt-20 px-6 text-center">
                 <h2 className="text-5xl font-extrabold text-gray-900 mb-6">
                 Propulsez votre entreprise vers le futur
                 </h2>

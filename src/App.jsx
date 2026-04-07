@@ -1,18 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
+import { BrowserRouter } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import AppRoutes from './AppRoutes';
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-      </Routes>
-    </Router>
-  );
+
+
+export default function App(){
+    return(
+      <BrowserRouter>
+        <div className="flex flex-col min-h-screen w-full">
+          <Navbar />
+          <main className="flex grow items-stretch justify-center w-full">
+              <AppRoutes />
+          </main>
+        </div>
+      </BrowserRouter>
+    )
 }
-
-export default App;
