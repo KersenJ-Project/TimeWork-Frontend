@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { DayOfWeek } from '../enum/DayOfWeek';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
@@ -10,17 +11,7 @@ const api = axios.create({
   }
 });
 
-const DayOfWeek = {
-  MONDAY: 'monday',
-  TUESDAY: 'tuesday',
-  WEDNESDAY: 'wednesday',
-  THURSDAY: 'thursday',
-  FRIDAY: 'friday',
-  SATURDAY: 'saturday',
-  SUNDAY: 'sunday',
-};
-
-const AvailabilityForm = () => {
+export default function AvailabilityForm(){
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -134,5 +125,3 @@ const AvailabilityForm = () => {
     </div>
   );
 };
-
-export default AvailabilityForm;
