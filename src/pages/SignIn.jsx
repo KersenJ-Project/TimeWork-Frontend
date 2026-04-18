@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,8 +20,16 @@ export default function SignIn(){
       const response = await api.post('/auth/signin', formData);
 
       if (response.status === 200 || response.status === 201) {
-        console.log("Connexion réussie !", response.data);
-        navigate('/');
+        const token = response.data.access_token;
+
+        if (token) {
+          localStorage.setItem('token', token);
+          
+          console.log("Connexion réussie et token sauvegardé !");
+          navigate('/');
+        } else {
+          console.error("Le backend n'a pas renvoyé de token.");
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || "Une erreur est survenue lors de la connexion.");
@@ -29,8 +37,8 @@ export default function SignIn(){
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <div className="flex items-center justify-center p-4">
+      <div className="min-w-100 bg-white p-8 rounded-xl shadow-lg">
         <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Bon retour !</h2>
         
         {error && (
