@@ -11,6 +11,11 @@ export default function Navbar() {
   // On récupère l'état global au lieu d'un état local
   const { lang, toggleLang } = useLanguage();
 
+  const hideNavbarPaths = ['/manager-dashboard', '/employee-dashboard', '/profil', '/schedule-grid'];
+  if (hideNavbarPaths.includes(location.pathname)) {
+    return null;
+  }
+
   const navLinks = [
     { to: '/signin', label: lang === 'FR' ? 'Connexion' : 'Login' },
     { to: '/profil', label: lang === 'FR' ? 'Profil' : 'Profile' },
