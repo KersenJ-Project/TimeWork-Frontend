@@ -2,12 +2,14 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   BarChart3, Calendar, Users, LogOut, 
   Settings, Bell, ClipboardList, Wallet, 
-  MessageSquare, HelpCircle, FileText 
+  MessageSquare, HelpCircle, FileText,
+  ShieldCheck, Building
 } from 'lucide-react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const userRole = localStorage.getItem('userRole');
 
   const handleLogout = () => {
     localStorage.clear();
@@ -25,21 +27,29 @@ export default function DashboardLayout() {
             <span className="text-xl font-bold tracking-tighter italic">TimeWork</span>
           </div>
           
-          <nav className="space-y-1">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Principal</p>
-            <SidebarLink to="/manager-dashboard" icon={<BarChart3 size={18} />} label="Vue d'ensemble" active={location.pathname === '/manager-dashboard'} />
-            <SidebarLink to="/schedule-grid" icon={<Calendar size={18} />} label="Planning" active={location.pathname === '/schedule-grid'} />
-            <SidebarLink to="/profil" icon={<Users size={18} />} label="Employés" active={location.pathname === '/profil'} />
-            
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2 mt-6">Gestion</p>
-            <SidebarLink to="/requests" icon={<ClipboardList size={18} />} label="Congés" />
-            <SidebarLink to="/payroll" icon={<Wallet size={18} />} label="Paie" />
-            <SidebarLink to="/reports" icon={<FileText size={18} />} label="Rapports" />
-            
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2 mt-6">Système</p>
-            <SidebarLink to="/settings" icon={<Settings size={18} />} label="Paramètres" />
-            <SidebarLink to="/messages" icon={<MessageSquare size={18} />} label="Messages" />
-          </nav>
+          {userRole === 'super_admin' ? (
+            <nav className="space-y-1">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Super Admin</p>
+              <SidebarLink to="/super-admin-dashboard" icon={<ShieldCheck size={18} />} label="Vue Globale" active={location.pathname === '/super-admin-dashboard'} />
+              <SidebarLink to="/manage-companies" icon={<Building size={18} />} label="Entreprises" active={location.pathname === '/manage-companies'} />
+            </nav>
+          ) : (
+            <nav className="space-y-1">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Principal</p>
+              <SidebarLink to="/manager-dashboard" icon={<BarChart3 size={18} />} label="Vue d'ensemble" active={location.pathname === '/manager-dashboard'} />
+              <SidebarLink to="/schedule-grid" icon={<Calendar size={18} />} label="Planning" active={location.pathname === '/schedule-grid'} />
+              <SidebarLink to="/profil" icon={<Users size={18} />} label="Employés" active={location.pathname === '/profil'} />
+              
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2 mt-6">Gestion</p>
+              <SidebarLink to="/requests" icon={<ClipboardList size={18} />} label="Congés" />
+              <SidebarLink to="/payroll" icon={<Wallet size={18} />} label="Paie" />
+              <SidebarLink to="/reports" icon={<FileText size={18} />} label="Rapports" />
+              
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2 mt-6">Système</p>
+              <SidebarLink to="/settings" icon={<Settings size={18} />} label="Paramètres" />
+              <SidebarLink to="/messages" icon={<MessageSquare size={18} />} label="Messages" />
+            </nav>
+          )}
         </div>
 
         <div className="p-6 border-t border-white/5">
@@ -54,10 +64,14 @@ export default function DashboardLayout() {
 
       <main className="flex-1 h-full overflow-y-auto bg-[#020617]">
         <header className="h-16 border-b border-white/5 flex items-center justify-between px-10 sticky top-0 bg-[#020617]/80 backdrop-blur-md z-10">
-          <h2 className="font-bold text-sm text-slate-400 uppercase tracking-widest italic">Console Manager</h2>
+          <h2 className="font-bold text-sm text-slate-400 uppercase tracking-widest italic">
+            {userRole === 'super_admin' ? 'Console Super Admin' : 'Console Manager'}
+          </h2>
           <div className="flex items-center gap-4">
             <Bell size={18} className="text-slate-500 cursor-pointer" />
-            <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xs uppercase">M</div>
+            <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xs uppercase">
+              {userRole === 'super_admin' ? 'SA' : 'M'}
+            </div>
           </div>
         </header>
         

@@ -56,13 +56,15 @@ export default function SignIn() {
       const response = await api.post('/auth/signin', formData);
 
       const { accessToken, role, userId} = response.data;
-
+      
         if (accessToken) {
           localStorage.setItem('token', accessToken);
           localStorage.setItem('userRole', role);
           localStorage.setItem('userId', userId);
 
-          if(role === UserRole.MANAGER) {
+          if (role === UserRole.SUPER_ADMIN) {
+            navigate('/super-admin-dashboard');
+          } else if (role === UserRole.MANAGER) {
             navigate('/manager-dashboard');
           } else {
             navigate('/employee-dashboard');
