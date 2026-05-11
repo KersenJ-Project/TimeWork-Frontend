@@ -9,6 +9,7 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 // Importe ton nouveau dashboard ici
 import SuperAdminDashboard from './pages/SuperAdminDashboard'; 
+import Contact from './pages/Contact';
 
 export default function AppRoutes() {
     return (
@@ -21,7 +22,7 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Routes Privées / Profil */}
-            <Route path="/profil" element={<Profil />} />
+            <Route path="/profil" element={<Contact />} />
 
             {/* Dashboards Spécifiques par Rôle */}
             <Route path="/super-admin" element={<SuperAdminDashboard />} />

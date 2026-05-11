@@ -73,19 +73,23 @@ export default function Navbar() {
           
           {/* 1. Boutons Auth */}
           <div className="flex items-center gap-2">
-            <Link
-              to="/signin"
-              className="bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-blue-500/20 active:scale-95"
-            >
-              {content.login}
-            </Link>
+            {localStorage.getItem("token") && !(
+              <Link
+                to="/signin"
+                className="bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-blue-500/20 active:scale-95"
+              >
+                {content.login}
+              </Link>
+            )}
             
-            <Link
-              to="/signup"
-              className="bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-blue-500/20 active:scale-95"
-            >
-              {content.signup}
-            </Link>
+            {localStorage.getItem("token") && !(
+              <Link
+                to="/signup"
+                className="bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-blue-500/20 active:scale-95"
+              >
+                {content.signup}
+              </Link>
+            )}
           </div>
 
           {/* 2. Le Séparateur (bien collé entre les deux groupes) */}
@@ -105,6 +109,18 @@ export default function Navbar() {
               to="/profil" 
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
                 location.pathname === '/profil' 
+                ? 'text-blue-400 bg-blue-500/10' 
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <User size={16} />
+              <span className="hidden lg:inline">{content.profile}</span>
+            </Link>
+
+            <Link 
+              to="/profil" 
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                location.pathname === '/contact' 
                 ? 'text-blue-400 bg-blue-500/10' 
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
