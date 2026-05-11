@@ -1,59 +1,28 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { User, Mail, Lock, ArrowRight, ShieldCheck, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, ShieldCheck, CheckCircle2, Eye, EyeOff, Phone } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { signupTranslations } from '../translations/signup';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
   withCredentials: true,
 });
 
-const translations = {
-  FR: {
-    title: "Créez votre compte",
-    subtitle: "Rejoignez la plateforme de gestion de temps la plus intuitive.",
-    labelFirstName: "Prénom",
-    labelLastName: "Nom",
-    labelEmail: "Email professionnel",
-    labelPass: "Mot de passe",
-    btnSubmit: "Créer mon compte",
-    loading: "Création en cours...",
-    hasAccount: "Déjà inscrit ?",
-    login: "Se connecter",
-    badge: "Inscription gratuite",
-    feature1: "Suivi des heures en temps réel",
-    feature2: "Gestion d'équipe simplifiée",
-    feature3: "Rapports automatisés"
-  },
-  EN: {
-    title: "Create your account",
-    subtitle: "Join the most intuitive time management platform.",
-    labelFirstName: "First Name",
-    labelLastName: "Last Name",
-    labelEmail: "Work Email",
-    labelPass: "Password",
-    btnSubmit: "Create account",
-    loading: "Creating...",
-    hasAccount: "Already have an account?",
-    login: "Sign In",
-    badge: "Free Registration",
-    feature1: "Real-time time tracking",
-    feature2: "Simplified team management",
-    feature3: "Automated reporting"
-  }
-};
-
 export default function SignUp() {
   const { lang } = useLanguage();
-  const t = translations[lang];
+
+  const t = signupTranslations[lang];
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    phoneNumber: '',
     email: '',
     password: ''
   });
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([]);
@@ -65,13 +34,11 @@ export default function SignUp() {
     setError('');
     try {
       const response = await api.post('/auth/signup', formData);
-      const user = response.data.user;
       if (response.status === 201 || response.status === 200) {
         navigate('/signin');
       }
     } catch (err) {
       const msg = err.response?.data?.message;
-
       if (Array.isArray(msg)) {
         setError(msg);
       } else {
@@ -169,6 +136,21 @@ export default function SignUp() {
                     placeholder="Dupont"
                     className="w-full px-4 py-4 bg-slate-950/50 border border-slate-800 rounded-2xl focus:border-blue-500/50 focus:ring-0 outline-none transition-all text-sm"
                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              {/* Téléphone */}
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 ml-1">{t.labelPhone}</label>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
+                  <input 
+                    type="tel" 
+                    required
+                    placeholder="+1 514 234 8921"
+                    className="w-full pl-12 pr-4 py-4 bg-slate-950/50 border border-slate-800 rounded-2xl focus:border-blue-500/50 focus:ring-0 outline-none transition-all text-sm"
+                    onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                   />
                 </div>
               </div>
