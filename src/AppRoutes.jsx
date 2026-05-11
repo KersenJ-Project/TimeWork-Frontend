@@ -20,9 +20,10 @@ export default function AppRoutes() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Routes Privées / Profil */}
-            <Route path="/profil" element={<Contact />} />
+            <Route path="/profil" element={<Profil />} />
 
             {/* Dashboards Spécifiques par Rôle */}
             <Route path="/super-admin" element={<SuperAdminDashboard />} />

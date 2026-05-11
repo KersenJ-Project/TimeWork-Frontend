@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, Globe, User } from 'lucide-react';
+import { Menu, X, Zap, Globe, User, Send  } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar() {
@@ -14,14 +14,16 @@ export default function Navbar() {
       profile: 'Profil',
       signup: 'Inscription',
       mobileLang: 'English Version',
-      freeSignup: 'Inscription gratuite'
+      freeSignup: 'Inscription gratuite',
+      contact: "Contact"
     },
     EN: {
       login: 'Login',
       profile: 'Profile',
       signup: 'Sign Up',
       mobileLang: 'Version Française',
-      freeSignup: 'Free Sign Up'
+      freeSignup: 'Free Sign Up',
+      contact: "Contact"
     }
   }[lang];
 
@@ -106,21 +108,21 @@ export default function Navbar() {
             </button>
 
             <Link 
-              to="/profil" 
+              to="/contact" 
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                location.pathname === '/profil' 
+                location.pathname === '/contact' 
                 ? 'text-blue-400 bg-blue-500/10' 
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <User size={16} />
-              <span className="hidden lg:inline">{content.profile}</span>
+              <Send size={16} />
+              <span className="hidden lg:inline">{content.contact}</span>
             </Link>
 
             <Link 
               to="/profil" 
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                location.pathname === '/contact' 
+                location.pathname === '/profil' 
                 ? 'text-blue-400 bg-blue-500/10' 
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
