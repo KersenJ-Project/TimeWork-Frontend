@@ -6,7 +6,7 @@ import { homeTranslations } from '../translations/home';
 
 export default function Home() {
   const { lang } = useLanguage();
-  const t = homeTranslations[lang];
+  const t = homeTranslations[lang?.toUpperCase()] || signinTranslations['FR'];
 
   return (
     <div className="w-full min-h-screen bg-[#020617] text-white">
