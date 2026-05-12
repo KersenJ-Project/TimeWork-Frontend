@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, Globe, User } from 'lucide-react';
+import { Menu, X, Zap, Globe, User, Send  } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar() {
@@ -14,14 +14,16 @@ export default function Navbar() {
       profile: 'Profil',
       signup: 'Inscription',
       mobileLang: 'English Version',
-      freeSignup: 'Inscription gratuite'
+      freeSignup: 'Inscription gratuite',
+      contact: "Contact"
     },
     EN: {
       login: 'Login',
       profile: 'Profile',
       signup: 'Sign Up',
       mobileLang: 'Version Française',
-      freeSignup: 'Free Sign Up'
+      freeSignup: 'Free Sign Up',
+      contact: "Contact"
     }
   }[lang];
 

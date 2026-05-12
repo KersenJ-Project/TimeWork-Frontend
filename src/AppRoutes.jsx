@@ -35,6 +35,7 @@ export default function AppRoutes() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Routes Privées / Profil / Contact */}
             <Route path="/profil" element={<Profil />} />
