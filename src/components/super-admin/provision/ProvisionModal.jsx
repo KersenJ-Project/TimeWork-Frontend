@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-} from 'react';
-
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import ModalHeader from './ModalHeader';
@@ -48,71 +44,72 @@ const ProvisionModal = ({
   onSuccess,
   editingCompany,
 }) => {
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] =
-    useState({
-      companyName: '',
-      companyAddress: '',
-      companyPhone: '',
+  const [formData, setFormData] = useState({
+    companyName: '',
+    companyAddress: '',
+    companyPhone: '',
 
-      managerFirstName: '',
-      managerLastName: '',
-      managerEmail: '',
-      managerPhone: '',
+    managerFirstName: '',
+    managerLastName: '',
+    managerEmail: '',
+    managerPhone: '',
 
-      operatingHours: defaultHours,
+    operatingHours: defaultHours,
 
-      roles: [defaultRole],
-    });
+    roles: [defaultRole],
+  });
 
   useEffect(() => {
-    if (editingCompany) {
+    if (!editingCompany) {
       setFormData({
-        companyName:
-          editingCompany.name || '',
+        companyName: '',
+        companyAddress: '',
+        companyPhone: '',
 
-        companyAddress:
-          editingCompany.address || '',
+        managerFirstName: '',
+        managerLastName: '',
+        managerEmail: '',
+        managerPhone: '',
 
-        companyPhone:
-          editingCompany.phone || '',
+        operatingHours: defaultHours,
 
-        managerFirstName:
-          editingCompany.managerFirstName ||
-          '',
-
-        managerLastName:
-          editingCompany.managerLastName ||
-          '',
-
-        managerEmail:
-          editingCompany.managerEmail ||
-          '',
-
-        managerPhone:
-          editingCompany.managerPhone ||
-          '',
-
-        operatingHours:
-          editingCompany.operatingHours ||
-          defaultHours,
-
-        roles:
-          editingCompany.roles?.length > 0
-            ? editingCompany.roles
-            : [defaultRole],
+        roles: [defaultRole],
       });
+      return;
     }
+
+    const manager = editingCompany.users?.find(
+      (u) => u.role?.toLowerCase() === 'manager'
+    );
+
+    setFormData({
+      companyName: editingCompany.name || '',
+      companyAddress: editingCompany.address || '',
+      companyPhone: editingCompany.phoneNumber || '',
+
+      managerFirstName: manager?.firstName || '',
+      managerLastName: manager?.lastName || '',
+      managerEmail: manager?.email || '',
+      managerPhone: manager?.phoneNumber || '',
+
+      operatingHours: editingCompany.operatingHours || defaultHours,
+
+      roles:
+        editingCompany.jobRoles?.length > 0
+          ? editingCompany.jobRoles.map((role) => ({
+              title: role.title,
+              baseHourlyRate: role.baseHourlyRate,
+              staffingNeeds: role.staffingNeedsPerDay || {},
+            }))
+          : [defaultRole],
+    });
   }, [editingCompany]);
 
   if (!isOpen) return null;
 
-  const updateField = (
-    field,
-    value
-  ) => {
+  const updateField = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -134,26 +131,16 @@ const ProvisionModal = ({
   };
 
   const removeRole = (index) => {
-    if (formData.roles.length === 1)
-      return;
+    if (formData.roles.length === 1) return;
 
     setFormData((prev) => ({
       ...prev,
-      roles: prev.roles.filter(
-        (_, i) => i !== index
-      ),
+      roles: prev.roles.filter((_, i) => i !== index),
     }));
   };
 
-  const updateRole = (
-    index,
-    field,
-    value
-  ) => {
-    const updatedRoles = [
-      ...formData.roles,
-    ];
-
+  const updateRole = (index, field, value) => {
+    const updatedRoles = [...formData.roles];
     updatedRoles[index][field] = value;
 
     setFormData((prev) => ({
@@ -162,19 +149,9 @@ const ProvisionModal = ({
     }));
   };
 
-  const updateStaffing = (
-    roleIndex,
-    day,
-    value
-  ) => {
-    const updatedRoles = [
-      ...formData.roles,
-    ];
-
-    updatedRoles[
-      roleIndex
-    ].staffingNeeds[day] =
-      parseInt(value) || 0;
+  const updateStaffing = (roleIndex, day, value) => {
+    const updatedRoles = [...formData.roles];
+    updatedRoles[roleIndex].staffingNeeds[day] = parseInt(value) || 0;
 
     setFormData((prev) => ({
       ...prev,
@@ -182,11 +159,7 @@ const ProvisionModal = ({
     }));
   };
 
-  const updateHours = (
-    day,
-    field,
-    value
-  ) => {
+  const updateHours = (day, field, value) => {
     setFormData((prev) => ({
       ...prev,
       operatingHours: {
@@ -199,50 +172,53 @@ const ProvisionModal = ({
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    
+    const formattedHours = {};
+    Object.entries(formData.operatingHours).forEach(([day, hours]) => {
+      const isClosed = hours.open === hours.close;
+      formattedHours[day] = {
+        ...hours,
+        isOpen: !isClosed,
+      };
+    });
 
-      const token =
-        localStorage.getItem('token');
+    const payload = {
+      ...formData,
+      operatingHours: formattedHours,
+    };
 
-      let res;
-
-      if (editingCompany) {
-        res = await axios.put(
+    if (editingCompany) {
+        await axios.patch(
           `http://localhost:3000/super-admin/company/${editingCompany.id}`,
-          formData,
+          payload,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
-
-        alert(
-          'Entreprise modifiée avec succès'
-        );
+        alert('Entreprise modifiée avec succès');
       } else {
-        res = await axios.post(
+        const res = await axios.post(
           'http://localhost:3000/super-admin/provision',
-          formData,
+          payload,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
         alert(`
-Déploiement réussi !
+          Déploiement réussi !
 
-Code entreprise:
-${res.data.companyCode}
+          Code entreprise:
+          ${res.data.companyCode}
 
-Mot de passe temporaire:
-${res.data.tempPassword}
+          Mot de passe temporaire:
+          ${res.data.tempPassword}
         `);
       }
 
@@ -250,10 +226,8 @@ ${res.data.tempPassword}
       onClose();
     } catch (err) {
       console.error(err);
-
       alert(
-        err?.response?.data?.message ||
-          'Erreur lors du provisioning'
+        err?.response?.data?.message || 'Erreur lors du provisioning'
       );
     } finally {
       setLoading(false);
@@ -262,39 +236,26 @@ ${res.data.tempPassword}
 
   return (
     <div className="fixed inset-0 z-50">
-
       <div
         onClick={onClose}
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
       />
 
       <div className="relative flex items-center justify-center min-h-screen p-4">
-
         <div className="w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh]">
+          <ModalHeader editingCompany={editingCompany} onClose={onClose} />
 
-          <ModalHeader
-            editingCompany={editingCompany}
-            onClose={onClose}
-          />
-
-          <form
-            onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto"
-          >
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
             <div className="p-8 space-y-10">
-
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-
                 <CompanySection
                   formData={formData}
                   updateField={updateField}
                 />
-
                 <ManagerSection
                   formData={formData}
                   updateField={updateField}
                 />
-
               </div>
 
               <HoursSection
@@ -309,7 +270,6 @@ ${res.data.tempPassword}
                 updateRole={updateRole}
                 updateStaffing={updateStaffing}
               />
-
             </div>
 
             <ModalFooter
@@ -317,7 +277,6 @@ ${res.data.tempPassword}
               editingCompany={editingCompany}
               onClose={onClose}
             />
-
           </form>
         </div>
       </div>

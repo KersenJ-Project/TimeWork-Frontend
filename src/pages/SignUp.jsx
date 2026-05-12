@@ -19,6 +19,7 @@ export default function SignUp() {
     firstName: '',
     lastName: '',
     phoneNumber: '',
+    companyCode: '',
     email: '',
     password: ''
   });
@@ -151,6 +152,33 @@ export default function SignUp() {
                     placeholder="+1 514 234 8921"
                     className="w-full pl-12 pr-4 py-4 bg-slate-950/50 border border-slate-800 rounded-2xl focus:border-blue-500/50 focus:ring-0 outline-none transition-all text-sm"
                     onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              {/* Company Code */}
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 ml-1">
+                  Company Code
+                </label>
+
+                <div className="relative">
+                  <ShieldCheck
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                    size={18}
+                  />
+
+                  <input
+                    type="text"
+                    required
+                    placeholder="TW-48291"
+                    className="w-full pl-12 pr-4 py-4 bg-slate-950/50 border border-slate-800 rounded-2xl focus:border-blue-500/50 focus:ring-0 outline-none transition-all text-sm"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        companyCode: e.target.value
+                      })
+                    }
                   />
                 </div>
               </div>

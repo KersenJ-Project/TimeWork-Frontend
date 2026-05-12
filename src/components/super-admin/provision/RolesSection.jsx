@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Briefcase,
   Plus,
@@ -47,6 +48,7 @@ const RolesSection = ({
           <Plus size={18} />
           Ajouter
         </button>
+
       </div>
 
       <div className="space-y-6">
@@ -63,6 +65,7 @@ const RolesSection = ({
         ))}
 
       </div>
+
     </div>
   );
 };
