@@ -60,44 +60,43 @@ export default function EmployeeDashboard() {
 
   const fetchData = async () => {
     setIsLoading(true);
-    
+
     try {
       const availRes = await api.get('/employee/availability');
       setAvailabilities(availRes.data || []);
     } catch (error) {
-      console.error("Erreur de récupération des disponibilités :", error);
+      console.error(
+        'Erreur de récupération des disponibilités :',
+        error
+      );
     }
 
     try {
       const leaveRes = await api.get('/employee/leave-request');
+
       setLeaveRequests(leaveRes.data || []);
     } catch (error) {
-      console.error("Erreur de récupération des congés :", error);
+      console.error(
+        'Erreur de récupération des congés :',
+        error
+      );
     }
-    // Try to fetch the current check-in status so UI reflects whether employee is working
+
     try {
-      // some backends expose different endpoints - try a sensible one and fallback
-      let statusRes;
-      try {
-        statusRes = await api.get('/employee/working');
-      } catch (e1) {
-        try {
-          statusRes = await api.get('/check-status');
-        } catch (e2) {
-          statusRes = await api.get('/employee/status');
-        }
-      }
-      // normalize
-      if (statusRes && typeof statusRes.data === 'object') {
-        setIsWorking(Boolean(statusRes.data.isWorking ?? statusRes.data.working ?? statusRes.data));
-      } else {
-        setIsWorking(Boolean(statusRes?.data));
-      }
+      const statusRes = await api.get(
+        '/employee/check-status'
+      );
+
+      setIsWorking(
+        Boolean(statusRes.data?.isWorking)
+      );
     } catch (error) {
-      // if none of the endpoints exist, keep default false
-      console.info('Impossible de récupérer le statut de pointage (non critique)');
+      console.error(
+        'Erreur récupération statut pointage :',
+        error
+      );
     }
-    
+
     setIsLoading(false);
   };
 
@@ -157,41 +156,22 @@ export default function EmployeeDashboard() {
     }
   };
 
-const handleCheckInOut = async () => {
-      try {
-        if (isWorking) {
-          try {
-            await api.post('/employee/check-out');
-          } catch (e) {
-            if (e.response && e.response.status === 404) {
-              await api.post('/check-out');
-            } else {
-              throw e;
-            }
-          }
-          setIsWorking(false);
-          await fetchData();
-        } else {
-          try {
-            await api.post('/employee/check-in');
-          } catch (e) {
-            if (e.response && e.response.status === 404) {
-              await api.post('/check-in');
-            } else {
-              throw e;
-            }
-          }
-          setIsWorking(true);
-          await fetchData();
-        }
-      } catch (err) {
-        const errorMsg = err?.response?.data?.message || err?.response?.data || '';
-        // Si le backend dit qu'il est déjà pointé, on synchronise l'affichage
-        if (String(errorMsg).toLowerCase().includes('already checked in') || err?.response?.status === 409) {
-          setIsWorking(true);
-        } else {
-          alert(normalizeApiError(err, "Erreur lors du pointage."));
-        }
+  const handleCheckInOut = async () => {
+    try {
+      if (isWorking) {
+        await api.post('/employee/check-out');
+      } else {
+        await api.post('/employee/check-in');
+      }
+
+      await fetchData();
+    } catch (err) {
+      alert(
+        normalizeApiError(
+          err,
+          'Erreur lors du pointage.'
+        )
+      );
     }
   };
 
