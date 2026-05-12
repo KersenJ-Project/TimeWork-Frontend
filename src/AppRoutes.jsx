@@ -58,7 +58,7 @@ export default function AppRoutes() {
                     <Route path="/leave-requests" element={<LeaveRequestPage />} />
                 </Route>
             </Route>
-
+0
             {/* EMPLOYEE */}
             <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'NEW_HIRE', 'ASSISTANT_MANAGER', 'TRAINEE']} />}>
                 <Route element={<DashboardLayout />}>
