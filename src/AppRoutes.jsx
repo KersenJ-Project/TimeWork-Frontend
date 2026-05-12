@@ -60,7 +60,7 @@ export default function AppRoutes() {
             </Route>
 
             {/* EMPLOYEE */}
-            <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'NEW_HIRE', 'ASSISTANT_MANAGER', 'TRAINEE']} />}>
                 <Route element={<DashboardLayout />}>
                     <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
                 </Route>
