@@ -28,11 +28,11 @@ export default function SignIn() {
       if (accessToken) {
         // 1. Stockage propre des données
         localStorage.setItem('token', accessToken);
-        localStorage.setItem('userRole', role);
+        localStorage.setItem('userRole', normalizeRole(role));
         localStorage.setItem('userId', userId);
         
         // 2. Normalisation pour la comparaison
-        const userRole = String(role).toUpperCase().trim();
+        const userRole = normalizeRole(role);
 
         // 3. Redirection basée sur les rôles réels
         if (userRole === 'SUPER_ADMIN') {
@@ -187,4 +187,11 @@ export default function SignIn() {
       </div>
     </div>
   );
+}
+
+function normalizeRole(role) {
+  return String(role || '')
+    .trim()
+    .toUpperCase()
+    .replace(/^ROLE_/, '');
 }
