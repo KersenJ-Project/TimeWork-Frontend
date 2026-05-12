@@ -10,7 +10,7 @@ export default function App(){
       <BrowserRouter>
         <div className="flex flex-col min-h-screen w-full">
           <Navbar />
-          <main className="flex grow items-stretch justify-center w-full">
+          <main className="flex grow items-stretch justify-center w-full pt-20">
             <ScrollToTop />
             <AppRoutes />
           </main>

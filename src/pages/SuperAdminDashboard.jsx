@@ -166,9 +166,7 @@ const SuperAdminDashboard = () => {
                     onSuccess={fetchCompanies}
                     editingCompany={editingCompany}
                 />
-
             </div>
-
         </div>
     );
 };

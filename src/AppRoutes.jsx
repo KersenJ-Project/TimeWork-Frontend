@@ -13,6 +13,7 @@ import DashboardLayout from './components/DashboardLayout';
 import ScheduleCalendar from './pages/ScheduleCalendar';
 import EmployeesPage from './pages/EmployeesPage';
 import LeaveRequestPage from './pages/LeaveRequestPage';
+import ShiftsPage from './pages/ShiftsPage'; 
 
 const ProtectedRoute = ({ allowedRoles }) => {
     const role = localStorage.getItem('userRole');
@@ -43,9 +44,8 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* Routes Privées / Profil / Contact */}
+            {/* Routes Privées */}
             <Route path="/profil" element={<Profil />} />
-            <Route path="/contact" element={<Contact />} />
 
             {/* SUPER_ADMIN */}
             <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
@@ -55,23 +55,23 @@ export default function AppRoutes() {
                 </Route>
             </Route>
 
-            {/* MANAGER */}
-            <Route element={<ProtectedRoute allowedRoles={['MANAGER']} />}>
+            {/* MANAGER & ASSISTANT MANAGER */}
+            <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'ASSISTANT_MANAGER']} />}>
                 <Route element={<DashboardLayout />}>
                     <Route path="/manager-dashboard" element={<ManagerDashboard />} />
                     <Route path="/schedule" element={<ScheduleCalendar />} />
                     <Route path="/employees" element={<EmployeesPage />} />
                     <Route path="/leave-requests" element={<LeaveRequestPage />} />
-                </Route>
-            </Route>
-
-            {/* EMPLOYEE */}
-            <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'NEW_HIRE', 'ASSISTANT_MANAGER', 'TRAINEE']} />}>
-                <Route element={<DashboardLayout />}>
-                    <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+                    <Route path="/shifts" element={<ShiftsPage />} />
                 </Route>
             </Route>
             
+            {/* EMPLOYEE */}
+            <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'NEW_HIRE', 'TRAINEE']} />}>
+                <Route element={<DashboardLayout />}>
+                    <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+                </Route>
+            </Route>            
             <Route path="*" element={<div className="p-20 text-center text-black">404 - Page non trouvée</div>} />
         </Routes>
     );
