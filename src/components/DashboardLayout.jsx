@@ -9,7 +9,8 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = normalizeRole(localStorage.getItem('userRole'));
-  const isEmployee = ['EMPLOYEE', 'NEW_HIRE', 'ASSISTANT_MANAGER', 'TRAINEE'].includes(userRole);
+  
+  const isEmployee = ['EMPLOYEE', 'NEW_HIRE', 'TRAINEE'].includes(userRole);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -28,6 +29,7 @@ export default function DashboardLayout() {
           </div>
 
           <nav className="space-y-1">
+            {/* SECTION SUPER ADMIN */}
             {userRole === 'SUPER_ADMIN' && (
               <>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Super Admin</p>
@@ -36,17 +38,23 @@ export default function DashboardLayout() {
               </>
             )}
 
-            {userRole === 'MANAGER' && (
+            {/* SECTION MANAGER / ASSISTANT MANAGER */}
+            {(userRole === 'MANAGER' || userRole === 'ASSISTANT_MANAGER') && (
               <>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Gestion</p>
                 <SidebarLink to="/manager-dashboard" icon={<BarChart3 size={18} />} label="Vue d'ensemble" active={location.pathname === '/manager-dashboard'} isEmployee={false} />
                 <SidebarLink to="/schedule" icon={<Calendar size={18} />} label="Planning" active={location.pathname === '/schedule'} isEmployee={false} />
+                
+                {/* AJOUT ICI : LE LIEN VERS LES SHIFTS */}
+                <SidebarLink to="/shifts" icon={<Clock size={18} />} label="Shifts (Quarts)" active={location.pathname === '/shifts'} isEmployee={false} />
+                
                 <SidebarLink to="/employees" icon={<Users size={18} />} label="Employés" active={location.pathname === '/employees'} isEmployee={false} />
                 <SidebarLink to="/leave-requests" icon={<ClipboardList size={18} />} label="Congés" active={location.pathname === '/leave-requests'} isEmployee={false} />
               </>
             )}
 
-            {isEmployee && (
+            {/* SECTION EMPLOYÉ */}
+            {userRole === 'EMPLOYEE' && (
               <>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Mon Espace</p>
                 <SidebarLink to="/employee-dashboard" icon={<Clock size={18} />} label="Pointage (Live)" active={location.pathname === '/employee-dashboard' && (location.search === '?tab=POINTAGE' || location.search === '')} isEmployee={true} />
