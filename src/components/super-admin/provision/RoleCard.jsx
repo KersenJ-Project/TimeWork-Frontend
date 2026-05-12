@@ -98,6 +98,9 @@ const RoleCard = ({
             <input
               type="number"
               placeholder="0"
+              value={
+                role.staffingNeeds?.[day] || 0
+              }
               className="input text-center text-sm"
               onChange={(e) =>
                 updateStaffing(
@@ -110,6 +113,7 @@ const RoleCard = ({
 
           </div>
         ))}
+
       </div>
     </div>
   );

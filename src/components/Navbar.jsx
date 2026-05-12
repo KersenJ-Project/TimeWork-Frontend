@@ -110,14 +110,13 @@ export default function Navbar() {
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Send size={16} />
-              <span className="hidden lg:inline">{content.contact}</span>
+              <span className="hidden lg:inline">Contact</span>
             </Link>
 
             {/* Profil — visible SEULEMENT avec token */}
             {isLoggedIn && (
               <Link
-                to="/profil"
+                to={localStorage.getItem("token") ? "/profil": "/signin"} 
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
                   location.pathname === '/profil'
                     ? 'text-blue-400 bg-blue-500/10'
