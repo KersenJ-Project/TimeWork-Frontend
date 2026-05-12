@@ -1,15 +1,10 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, LogIn, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { UserRole } from '../enum/UserRole';
 import { signinTranslations } from '../translations/signin';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  withCredentials: true,
-});
+import api from '../api/axios';
 
 export default function SignIn() {
   const { lang } = useLanguage();

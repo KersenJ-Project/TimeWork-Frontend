@@ -1,14 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { User, Mail, Lock, ArrowRight, ShieldCheck, CheckCircle2, Eye, EyeOff, Phone } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { signupTranslations } from '../translations/signup';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  withCredentials: true,
-});
+import api from '../api/axios';
 
 export default function SignUp() {
   const { lang } = useLanguage();
