@@ -110,6 +110,7 @@ export default function Navbar() {
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
+              <Send size={16} />
               <span className="hidden lg:inline">Contact</span>
             </Link>
 
