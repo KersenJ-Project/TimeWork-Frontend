@@ -1,45 +1,14 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, LogIn, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { UserRole } from '../enum/UserRole';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  withCredentials: true,
-});
-
-const translations = {
-  FR: {
-    title: "Bon retour !",
-    subtitle: "Heureux de vous revoir sur TimeWork. Connectez-vous pour gérer vos équipes.",
-    labelEmail: "Email professionnel",
-    labelPass: "Mot de passe",
-    forgot: "Oublié ?",
-    btnSubmit: "Se connecter",
-    loading: "Connexion...",
-    noAccount: "Nouveau ici ?",
-    createAccount: "Créer un compte",
-    badge: "Accès Sécurisé"
-  },
-  EN: {
-    title: "Welcome Back!",
-    subtitle: "Happy to see you again. Log in to manage your teams effortlessly.",
-    labelEmail: "Work Email",
-    labelPass: "Password",
-    forgot: "Forgot?",
-    btnSubmit: "Sign In",
-    loading: "Connecting...",
-    noAccount: "New here?",
-    createAccount: "Create account",
-    badge: "Secure Access"
-  }
-};
+import { signinTranslations } from '../translations/signin';
+import api from '../api/axios';
 
 export default function SignIn() {
   const { lang } = useLanguage();
-  const t = translations[lang];
+  const t = signinTranslations[lang];
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -54,22 +23,31 @@ export default function SignIn() {
 
     try {
       const response = await api.post('/auth/signin', formData);
+      const { accessToken, role, userId } = response.data;
 
-      const { accessToken, role, userId} = response.data;
-      
-        if (accessToken) {
-          localStorage.setItem('token', accessToken);
-          localStorage.setItem('userRole', role);
-          localStorage.setItem('userId', userId);
+      if (accessToken) {
+        // 1. Stockage propre des données
+        localStorage.setItem('token', accessToken);
+        localStorage.setItem('userRole', role);
+        localStorage.setItem('userId', userId);
+        
+        // 2. Normalisation pour la comparaison
+        const userRole = String(role).toUpperCase().trim();
 
-          if (role === UserRole.SUPER_ADMIN) {
-            navigate('/super-admin-dashboard');
-          } else if (role === UserRole.MANAGER) {
-            navigate('/manager-dashboard');
-          } else {
-            navigate('/employee-dashboard');
-          }
+        // 3. Redirection basée sur les rôles réels
+        if (userRole === 'SUPER_ADMIN') {
+          console.log("Accès Super Admin détecté");
+          navigate('/super-admin');
+        } 
+        else if (userRole === 'MANAGER') {
+          console.log("Accès Manager détecté");
+          navigate('/manager-dashboard');
+        } 
+        else {
+          console.log("Accès Employé détecté");
+          navigate('/employee-dashboard');
         }
+      }
     } catch (err) {
       const msg = err.response?.data?.message;
       setError(Array.isArray(msg) ? msg : [msg || "Erreur de connexion"]);

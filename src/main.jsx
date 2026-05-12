@@ -4,10 +4,16 @@ import App from './App'
 import './index.css'
 import { LanguageProvider } from './context/LanguageContext' // Importe le provider
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <LanguageProvider>
       <App />
     </LanguageProvider>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
