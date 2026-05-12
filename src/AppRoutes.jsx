@@ -17,13 +17,19 @@ import LeaveRequestPage from './pages/LeaveRequestPage';
 const ProtectedRoute = ({ allowedRoles }) => {
     const role = localStorage.getItem('userRole');
     if (!role) return <Navigate to="/signin" />;
-    
-    // Normaliser avec Trim et UpperCase au cas où
-    const currentRole = String(role).toUpperCase().trim();
+
+    const currentRole = normalizeRole(role);
     if (allowedRoles && !allowedRoles.includes(currentRole)) {
         return <Navigate to="/" />;
     }
     return <Outlet />;
+};
+
+const normalizeRole = (role) => {
+    return String(role || '')
+        .trim()
+        .toUpperCase()
+        .replace(/^ROLE_/, '');
 };
 
 export default function AppRoutes() {
