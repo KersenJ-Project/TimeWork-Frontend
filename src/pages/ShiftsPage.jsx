@@ -53,7 +53,7 @@ export default function ShiftsPage() {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce shift ?")) return;
     try {
       await api.delete(`/shift/${id}`);
-      fetchData();
+      fetchData(); 
     } catch (error) {
       alert("Erreur lors de la suppression.");
     }
@@ -109,22 +109,14 @@ export default function ShiftsPage() {
     <div className="w-full p-6 lg:p-10 space-y-8 bg-[#020617] min-h-screen text-white">
       <div className="flex flex-col md:flex-row justify-between items-center border-b border-slate-800 pb-6 gap-4">
         <div>
-          <h1 className="text-4xl font-black italic tracking-tighter uppercase">
-            Gestion des <span className="text-blue-500">Shifts</span>
-          </h1>
+          <h1 className="text-4xl font-black italic tracking-tighter uppercase">Gestion des <span className="text-blue-500">Shifts</span></h1>
           <p className="text-slate-400 font-medium mt-1 italic">Assignez des heures de travail à vos employés.</p>
         </div>
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setIsMassModalOpen(true)}
-            className="bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-6 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-indigo-600 hover:text-white shadow-lg transition-all active:scale-95 uppercase text-sm"
-          >
+          <button onClick={() => setIsMassModalOpen(true)} className="bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-6 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-indigo-600 hover:text-white shadow-lg transition-all active:scale-95 uppercase text-sm">
             Générer Shifts
           </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-blue-500 shadow-xl transition-all active:scale-95"
-          >
+          <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-blue-500 shadow-xl transition-all active:scale-95">
             <Plus size={24} /> <span>NOUVEAU SHIFT</span>
           </button>
         </div>

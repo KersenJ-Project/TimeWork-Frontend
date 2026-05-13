@@ -6,7 +6,7 @@
 /* Force le background sur le body pour éviter les fuites de blanc */
 body {
   margin: 0;
-  background-color: #020617; /* Ton bleu nuit */
+  background-color: #020617; 
   color: white;
 }
 

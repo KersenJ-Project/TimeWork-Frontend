@@ -7,7 +7,7 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
   const [massConfig, setMassConfig] = useState({
     userId: '',
     scheduleId: '',
-    useCustomTimes: false,
+    useCustomTimes: false, 
     customStartTime: '09:00',
     customEndTime: '17:00',
     skipWeekends: false

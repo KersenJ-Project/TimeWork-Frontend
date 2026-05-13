@@ -23,9 +23,10 @@ const ProtectedRoute = ({ allowedRoles }) => {
     if (allowedRoles && !allowedRoles.includes(currentRole)) {
         return <Navigate to="/" />;
     }
-    return <Outlet />;
+    return <Outlet />; 
 };
 
+// Normalise les chaînes de rôles pour éviter les problèmes de casse ou de préfixes (ex: ROLE_MANAGER -> MANAGER)
 const normalizeRole = (role) => {
     return String(role || '')
         .trim()
@@ -36,7 +37,7 @@ const normalizeRole = (role) => {
 export default function AppRoutes() {
     return (
         <Routes>
-            {/* Routes Publiques */}
+            {/* --- ROUTES PUBLIQUES (accessibles sans connexion) --- */}
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
@@ -44,10 +45,10 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* Routes Privées */}
+            {/* --- ROUTES PRIVÉES (nécessitent une connexion) --- */}
             <Route path="/profil" element={<Profil />} />
 
-            {/* SUPER_ADMIN */}
+            {/* SECTION SUPER ADMIN : Gestion globale du système/entreprises */}
             <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
                 <Route element={<DashboardLayout />}>
                     <Route path="/super-admin" element={<SuperAdminDashboard />} />
@@ -55,7 +56,7 @@ export default function AppRoutes() {
                 </Route>
             </Route>
 
-            {/* MANAGER & ASSISTANT MANAGER */}
+            {/* SECTION GESTION : Réservée aux Managers et Assistants */}
             <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'ASSISTANT_MANAGER']} />}>
                 <Route element={<DashboardLayout />}>
                     <Route path="/manager-dashboard" element={<ManagerDashboard />} />
@@ -66,12 +67,14 @@ export default function AppRoutes() {
                 </Route>
             </Route>
             
-            {/* EMPLOYEE */}
+            {/* SECTION EMPLOYÉ : Espace personnel pour le pointage et les horaires */}
             <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'NEW_HIRE', 'TRAINEE']} />}>
                 <Route element={<DashboardLayout />}>
                     <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
                 </Route>
             </Route>            
+            
+            {/* Redirection 404 si la route n'existe pas */}
             <Route path="*" element={<div className="p-20 text-center text-black">404 - Page non trouvée</div>} />
         </Routes>
     );

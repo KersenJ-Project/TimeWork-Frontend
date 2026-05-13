@@ -27,8 +27,8 @@ export default function AvailabilityTab() {
       const payload = {
         ...newAvail,
         isAvailable: true,
-        startTime: newAvail.isAllDay ? undefined : newAvail.startTime,
-        endTime: newAvail.isAllDay ? undefined : newAvail.endTime,
+        startTime: newAvail.isAllDay ? '00:00' : newAvail.startTime,
+        endTime: newAvail.isAllDay ? '23:59' : newAvail.endTime,
       };
       await api.post('/employee/availability', payload);
       setNewAvail({ dayOfWeek: DayOfWeek.MONDAY, isAllDay: false, startTime: '09:00', endTime: '17:00' });

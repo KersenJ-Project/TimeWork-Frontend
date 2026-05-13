@@ -40,7 +40,7 @@ export default function DashboardLayout() {
             {/* SECTION MANAGER / ASSISTANT MANAGER */}
             {(userRole === 'MANAGER' || userRole === 'ASSISTANT_MANAGER') && (
               <>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Gestion</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 mb-2">Options</p>
                 <SidebarLink to="/manager-dashboard" icon={<BarChart3 size={18} />} label="Vue d'ensemble" active={location.pathname === '/manager-dashboard'} isEmployee={false} />
                 <SidebarLink to="/schedule" icon={<Calendar size={18} />} label="Planning" active={location.pathname === '/schedule'} isEmployee={false} />
                 
@@ -53,10 +53,12 @@ export default function DashboardLayout() {
             )}
 
             {/* SECTION EMPLOYÉ */}
-            {userRole === 'EMPLOYEE' && (
+            {isEmployee && (
               <>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Mon Espace</p>
-                <SidebarLink to="/employee-dashboard" icon={<Clock size={18} />} label="Pointage (Live)" active={location.pathname === '/employee-dashboard' && (location.search === '?tab=POINTAGE' || location.search === '')} isEmployee={true} />
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Options</p>
+                <SidebarLink to="/employee-dashboard?tab=OVERVIEW" icon={<BarChart3 size={18} />} label="Mon Espace" active={location.pathname === '/employee-dashboard' && (location.search === '?tab=OVERVIEW' || location.search === '')} isEmployee={true} />
+                <SidebarLink to="/employee-dashboard?tab=POINTAGE" icon={<Clock size={18} />} label="Pointage (Live)" active={location.pathname === '/employee-dashboard' && location.search === '?tab=POINTAGE'} isEmployee={true} />
+                <SidebarLink to="/employee-dashboard?tab=SHIFTS" icon={<Calendar size={18} />} label="Mes Shifts" active={location.pathname === '/employee-dashboard' && location.search === '?tab=SHIFTS'} isEmployee={true} />
                 <SidebarLink to="/employee-dashboard?tab=DISPO" icon={<ClipboardList size={18} />} label="Mes Disponibilités" active={location.pathname === '/employee-dashboard' && location.search === '?tab=DISPO'} isEmployee={true} />
                 <SidebarLink to="/employee-dashboard?tab=CONGES" icon={<Calendar size={18} />} label="Mes Congés" active={location.pathname === '/employee-dashboard' && location.search === '?tab=CONGES'} isEmployee={true} />
               </>

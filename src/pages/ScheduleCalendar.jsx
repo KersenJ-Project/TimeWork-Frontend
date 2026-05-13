@@ -9,18 +9,17 @@ export default function ScheduleCalendar() {
   const currentLang = lang ? lang.toLowerCase() : 'fr';
   const t = managerTranslations[currentLang] || managerTranslations['fr'];
 
-  const [schedules, setSchedules] = useState([]);
+  const [schedules, setSchedules] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [viewingShiftsSchedule, setViewingShiftsSchedule] = useState(null);
+  const [editingId, setEditingId] = useState(null); 
+  const [viewingShiftsSchedule, setViewingShiftsSchedule] = useState(null); 
   const [scheduleShifts, setScheduleShifts] = useState([]);
   const [isShiftsLoading, setIsShiftsLoading] = useState(false);
   const [editFormData, setEditFormData] = useState({ name: '', startDate: '', endDate: '' });
   const [newSchedule, setNewSchedule] = useState({ name: '', startDate: '', endDate: '' });
 
-  // Extract date to YYYY-MM-DD regardless of backend format
   const extractDate = (dateStr) => {
     if (!dateStr) return "";
     const raw = dateStr.split(/[T ]/)[0];
@@ -74,18 +73,21 @@ export default function ScheduleCalendar() {
     const start = new Date(newSchedule.startDate);
     const end = new Date(newSchedule.endDate);
     
+    // 1. Validation de l'ordre des dates
     if (end < start) {
       alert("La date de fin ne peut pas être avant la date de début.");
       return;
     }
+    // 2. Validation de la durée minimale (1 semaine)
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     if (diffDays < 7) {
       alert("Un planning doit durer au minimum une semaine (7 jours).");
       return;
     }
+
+    // 3. Empêcher le chevauchement de deux plannings différents
     const startStr = newSchedule.startDate;
     const endStr = newSchedule.endDate;
-
     const hasOverlap = schedules.some(sched => {
       if (editingId && sched.id === editingId) return false;
       const sStart = extractDate(sched.startDate);
