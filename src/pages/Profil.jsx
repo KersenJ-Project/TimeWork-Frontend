@@ -11,6 +11,8 @@ import AvailabilityForm       from '../components/AvailabilityForm';
 import UpdateEmployeeRoleForm from '../components/UpdateEmployeeRoleForm';
 import PendingApprovals       from '../components/PendingApprovals';
 import PersonalInformation    from '../components/PersonalInformation';
+import { useLanguage } from '../context/LanguageContext';
+import { profilTranslations } from '../translations/profil';
 
 
 const MANAGER_ROLES  = ['manager', 'assistant_manager'];
@@ -184,6 +186,9 @@ function AccessDenied() {
 
 
 export default function Profil() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = profilTranslations[currentLang] || profilTranslations['fr'];
   const [activeTab,        setActiveTab]     = useState('info');
   const [isMobileMenuOpen, setMobileMenu]    = useState(false);
   const [userData,         setUserData]      = useState(null);
@@ -225,30 +230,30 @@ export default function Profil() {
   const menuItems = [
     {
       id: 'info',
-      label: 'Informations',
+      label: t.infoLabel,
       icon: User,
-      description: 'Gérez vos données personnelles et de contact.',
+      description: t.infoDesc,
     },
     // Disponibilités, employés seulement
     ...(userIsEmployee ? [{
       id: 'dispo',
-      label: 'Disponibilités',
+      label: t.dispoLabel,
       icon: Calendar,
-      description: 'Mettez à jour vos horaires de travail.',
+      description: t.dispoDesc,
     }] : []),
     // Rôles & Approbations, managers seulement
     ...(userIsManager ? [
       {
         id: 'roles',
-        label: 'Rôles',
+        label: t.rolesLabel,
         icon: ShieldCheck,
-        description: 'Gérez les grades et rôles des employés.',
+        description: t.rolesDesc,
       },
       {
         id: 'approvals',
-        label: 'Approbations',
+        label: t.approvalsLabel,
         icon: UserCheck,
-        description: 'Approuvez les nouvelles inscriptions.',
+        description: t.approvalsDesc,
       },
     ] : []),
   ];
@@ -312,14 +317,25 @@ export default function Profil() {
             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)]">
               <User size={16} className="text-white" />
             </div>
-            <span className="font-black text-white tracking-tight text-sm">Mon Profil</span>
+            <span className="font-black text-white tracking-tight text-sm">{t.myProfile}</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const r = userRole;
+                if (r === 'super_admin') window.location.href = '/super-admin';
+                else if (isManager(r)) window.location.href = '/manager-dashboard';
+                else window.location.href = '/employee-dashboard';
+              }}
+              className="flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-2 rounded-xl transition-all border border-blue-500/20 text-xs font-bold"
+            >
+              Dashboard
+            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl transition-all border border-white/5 text-xs font-bold"
             >
-              <LogOut size={15} /> Quitter
+              <LogOut size={15} /> {t.logout}
             </button>
             <button
               onClick={() => setMobileMenu(!isMobileMenuOpen)}
@@ -341,8 +357,8 @@ export default function Profil() {
               <User size={18} className="text-white" />
             </div>
             <div>
-              <p className="text-white font-black text-sm tracking-tight leading-none">Mon Profil</p>
-              <p className="text-slate-600 text-[11px] mt-0.5 font-medium">Espace personnel</p>
+              <p className="text-white font-black text-sm tracking-tight leading-none">{t.myProfile}</p>
+              <p className="text-slate-600 text-[11px] mt-0.5 font-medium">{t.personalSpace}</p>
             </div>
           </div>
 
@@ -367,10 +383,21 @@ export default function Profil() {
           {/* Footer sidebar */}
           <div className="p-5 border-t border-slate-800/60 space-y-3">
             <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-2 justify-center bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl transition-all border border-white/5 text-sm font-bold"
+              onClick={() => {
+                const r = userRole;
+                if (r === 'super_admin') window.location.href = '/super-admin';
+                else if (isManager(r)) window.location.href = '/manager-dashboard';
+                else window.location.href = '/employee-dashboard';
+              }}
+              className="w-full flex items-center gap-2 justify-center bg-blue-600 hover:bg-blue-500 text-white px-4 py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)] text-sm font-bold"
             >
-              <LogOut size={18} /> Quitter
+              {t.backToDashboard}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 justify-center bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-3 rounded-xl transition-all border border-white/5 text-sm font-bold mt-2"
+            >
+              <LogOut size={18} /> {t.logout}
             </button>
             <p className="text-[10px] text-slate-700 tracking-widest font-bold uppercase text-center">
               TimeWork, v2.0.0

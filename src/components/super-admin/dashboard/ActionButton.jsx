@@ -7,13 +7,13 @@ const ActionButton = ({
 }) => {
     const styles = {
         indigo:
-            'bg-indigo-50 text-indigo-600 hover:bg-indigo-100',
+            'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20',
 
         gray:
-            'bg-gray-100 text-gray-700 hover:bg-gray-200',
+            'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700',
 
         red:
-            'bg-red-50 text-red-500 hover:bg-red-100',
+            'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20',
     };
 
     return (

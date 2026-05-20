@@ -14,6 +14,7 @@ import ScheduleCalendar from './pages/ScheduleCalendar';
 import EmployeesPage from './pages/EmployeesPage';
 import LeaveRequestPage from './pages/LeaveRequestPage';
 import ShiftsPage from './pages/ShiftsPage'; 
+import ManageCompanies from './pages/ManageCompanies';
 
 const ProtectedRoute = ({ allowedRoles }) => {
     const role = localStorage.getItem('userRole');
@@ -46,13 +47,15 @@ export default function AppRoutes() {
             <Route path="/contact" element={<Contact />} />
 
             {/* --- ROUTES PRIVÉES (nécessitent une connexion) --- */}
-            <Route path="/profil" element={<Profil />} />
+            <Route element={<ProtectedRoute />}>
+                <Route path="/profil" element={<Profil />} />
+            </Route>
 
             {/* SECTION SUPER ADMIN : Gestion globale du système/entreprises */}
             <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
                 <Route element={<DashboardLayout />}>
                     <Route path="/super-admin" element={<SuperAdminDashboard />} />
-                    <Route path="/manage-companies" element={<div className="p-10 text-black">Manage Companies Page (TODO)</div>} />
+                    <Route path="/manage-companies" element={<ManageCompanies />} />
                 </Route>
             </Route>
 

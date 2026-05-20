@@ -6,8 +6,13 @@ import CheckInTab from '../components/employee/CheckInTab';
 import MyShiftsTab from '../components/employee/MyShiftsTab';
 import AvailabilityTab from '../components/employee/AvailabilityTab';
 import LeaveTab from '../components/employee/LeaveTab';
+import { useLanguage } from '../context/LanguageContext';
+import { employeeTranslations } from '../translations/employee';
 
 export default function EmployeeDashboard() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = employeeTranslations[currentLang] || employeeTranslations['fr'];
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -31,8 +36,8 @@ export default function EmployeeDashboard() {
       {/* En-tête de la page */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end border-b border-slate-800 pb-6 gap-6">
         <div>
-          <h1 className="text-4xl font-black italic tracking-tighter">Mon <span className="text-blue-500">Espace</span></h1>
-          <p className="text-slate-400 font-medium mt-1">Gérez vos disponibilités, vos congés et votre pointage.</p>
+          <h1 className="text-4xl font-black italic tracking-tighter">{t.dashboardTitle.split(' ')[0]} <span className="text-blue-500">{t.dashboardTitle.split(' ').slice(1).join(' ')}</span></h1>
+          <p className="text-slate-400 font-medium mt-1">{t.dashboardSubtitle}</p>
         </div>
       </div>
 

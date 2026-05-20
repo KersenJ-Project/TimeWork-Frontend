@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import api from '../../api/axios';
 import { getUserId } from '../../api/userId';
+import { useLanguage } from '../../context/LanguageContext';
+import { employeeTranslations } from '../../translations/employee';
 
 export default function MyShiftsTab() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = employeeTranslations[currentLang] || employeeTranslations['fr'];
   const [shifts, setShifts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,16 +56,16 @@ export default function MyShiftsTab() {
           <Calendar size={24} />
         </div>
         <div>
-          <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white">Mes <span className="text-indigo-500">Shifts</span></h2>
-          <p className="text-slate-400 font-medium text-sm">Consultez votre emploi du temps.</p>
+          <h2 className="text-2xl font-black italic tracking-tighter uppercase text-white">{t.myShiftsTitle.split(' ')[0]} <span className="text-indigo-500">{t.myShiftsTitle.split(' ').slice(1).join(' ')}</span></h2>
+          <p className="text-slate-400 font-medium text-sm">{t.myShiftsSubtitle}</p>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-20 font-black text-slate-600 italic">Chargement de vos shifts...</div>
+        <div className="text-center py-20 font-black text-slate-600 italic">{t.loading}</div>
       ) : shifts.length === 0 ? (
         <div className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-16 text-center shadow-sm">
-          <p className="text-slate-500 font-bold italic uppercase">Vous n'avez aucun shift assigné pour le moment.</p>
+          <p className="text-slate-500 font-bold italic uppercase">{t.noShifts}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -79,10 +84,10 @@ export default function MyShiftsTab() {
                     <h3 className="font-black text-lg text-white capitalize">{formatDate(shift.date)}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${isToday ? 'bg-indigo-500/20 text-indigo-400' : isPast ? 'bg-slate-800 text-slate-500' : 'bg-blue-500/10 text-blue-400'}`}>
-                        {isToday ? "Aujourd'hui" : isPast ? 'Passé' : 'À venir'}
+                        {isToday ? t.today : isPast ? t.past : t.upcoming}
                       </span>
                       {shift.schedule?.name && (
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cycle: {shift.schedule.name}</span>
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.cycle} {shift.schedule.name}</span>
                       )}
                     </div>
                   </div>

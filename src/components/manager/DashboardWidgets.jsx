@@ -1,5 +1,7 @@
 import React from 'react';
 import { Clock, Check, X, Calendar, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { managerTranslations } from '../../translations/manager';
 
 export function MiniStat({ label, value, bg, iconColor }) {
   return (
@@ -15,8 +17,11 @@ export function MiniStat({ label, value, bg, iconColor }) {
   );
 }
 
-export function ApprovalItem({ user, onApprove, onReject, t }) {
-  const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Utilisateur';
+export function ApprovalItem({ user, onApprove, onReject }) {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = managerTranslations[currentLang] || managerTranslations['fr'];
+  const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || t.widgetUnknownUser;
 
   return (
     <div className="flex items-center justify-between p-6 border-b border-slate-800 last:border-0 hover:bg-slate-800/50 transition-all">
@@ -42,10 +47,13 @@ export function ApprovalItem({ user, onApprove, onReject, t }) {
 }
 
 export function ShiftItem({ shift }) {
-  const name = `${shift.user?.firstName || ''} ${shift.user?.lastName || ''}`.trim() || 'Utilisateur';
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = managerTranslations[currentLang] || managerTranslations['fr'];
+  const name = `${shift.user?.firstName || ''} ${shift.user?.lastName || ''}`.trim() || t.widgetUnknownUser;
   
   const formatDate = (dateStr) => {
-    if (!dateStr) return "Inconnue";
+    if (!dateStr) return t.widgetUnknownDate;
     const rawDate = dateStr.split(/[T ]/)[0];
     const parts = rawDate.split(/[-/]/);
     if (parts.length === 3) {
@@ -84,7 +92,7 @@ export function ShiftItem({ shift }) {
         </div>
       </div>
       <div className="bg-slate-950/50 px-4 py-2 rounded-xl border border-slate-800 text-center">
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Heures</p>
+          <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{t.widgetHours}</p>
           <div className="font-black text-xs text-purple-300 flex items-center gap-2">
             <span>{startStr}</span>
             <ArrowRight size={10} className="text-slate-600" />

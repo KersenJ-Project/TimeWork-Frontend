@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Calendar, ArrowRight } from 'lucide-react';
+import { Clock, Calendar, ArrowRight, X } from 'lucide-react';
 import api from '../../api/axios';
 import { getUserId } from '../../api/userId';
+import { useLanguage } from '../../context/LanguageContext';
+import { employeeTranslations } from '../../translations/employee';
 
 export default function CheckInTab() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = employeeTranslations[currentLang] || employeeTranslations['fr'];
   const [isWorking, setIsWorking] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [todayShift, setTodayShift] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -31,11 +38,18 @@ export default function CheckInTab() {
 
   const handleCheckInOut = async () => {
     try {
-      if (isWorking) await api.post('/employee/check-out');
-      else await api.post('/employee/check-in');
+      setErrorMsg(null);
+      if (isWorking) {
+         await api.post('/employee/check-out');
+         setSuccessMsg(t.punchOut);
+      } else {
+         await api.post('/employee/check-in');
+         setSuccessMsg(t.punchIn);
+      }
+      setTimeout(() => setSuccessMsg(null), 3000);
       await fetchData();
     } catch (err) {
-      alert(err?.response?.data?.message || 'Erreur lors du pointage.');
+      setErrorMsg(err?.response?.data?.message || 'Erreur lors du pointage.');
     }
   };
 
@@ -46,7 +60,7 @@ export default function CheckInTab() {
     return isNaN(d.getTime()) ? timeStr : d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
-  if (isLoading) return <div className="text-center py-20 font-black text-slate-600 italic">Chargement...</div>;
+  if (isLoading) return <div className="text-center py-20 font-black text-slate-600 italic">{t.loading}</div>;
 
   return (
     <div className="max-w-2xl mx-auto mt-10">
@@ -55,10 +69,24 @@ export default function CheckInTab() {
         
         <Clock className={`mb-6 mx-auto transition-colors duration-500 ${isWorking ? 'text-red-500' : (todayShift ? 'text-blue-500' : 'text-slate-600')}`} size={64} />
         
+        {errorMsg && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl font-bold flex justify-between items-center mb-6 text-xs text-left mx-auto max-w-sm">
+            {errorMsg}
+            <button onClick={() => setErrorMsg(null)}><X size={16} /></button>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl font-bold flex justify-between items-center mb-6 text-xs text-left mx-auto max-w-sm">
+            {successMsg}
+            <button onClick={() => setSuccessMsg(null)}><X size={16} /></button>
+          </div>
+        )}
+
         {todayShift ? (
           <>
             <h2 className="text-3xl font-black mb-2 text-white uppercase tracking-tighter">
-              {isWorking ? 'Shift en cours' : 'Prêt à travailler ?'}
+              {isWorking ? t.shiftInProgress : t.readyToWork}
             </h2>
 
             <div className="flex items-center justify-center gap-4 bg-slate-950/50 p-4 rounded-2xl border border-slate-800 w-fit mx-auto mb-8">
@@ -71,24 +99,24 @@ export default function CheckInTab() {
             </div>
 
             <p className="text-slate-400 mb-10 font-bold text-sm">
-              {isWorking ? "N'oubliez pas de terminer votre shift à la fin de votre quart de travail." : "Pointez votre arrivée pour commencer votre shift !"}
+              {isWorking ? t.endShiftMessage : t.startShiftMessage}
             </p>
             
             <button
               onClick={handleCheckInOut}
               className={`text-white font-black px-12 py-5 rounded-full transition-all duration-300 shadow-xl w-full max-w-sm mx-auto text-lg uppercase tracking-widest active:scale-95 ${isWorking ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30'}`}
             >
-              {isWorking ? 'Terminer le shift' : "Pointer l'arrivée"}
+              {isWorking ? t.punchOut : t.punchIn}
             </button>
           </>
         ) : (
           <>
-            <h2 className="text-3xl font-black mb-4 text-white uppercase tracking-tighter">Aucun shift prévu</h2>
+            <h2 className="text-3xl font-black mb-4 text-white uppercase tracking-tighter">{t.noShiftToday}</h2>
             <p className="text-slate-400 mb-10 font-bold text-sm">
-              Vous n'avez pas de shift assigné pour aujourd'hui. Profitez de votre journée !
+              {t.noShiftMessage}
             </p>
             <button disabled className="text-slate-500 font-black px-12 py-5 rounded-full bg-slate-800/50 w-full max-w-sm mx-auto text-lg uppercase tracking-widest cursor-not-allowed border border-slate-700/50">
-              Pointage bloqué
+              {t.punchBlocked}
             </button>
           </>
         )}

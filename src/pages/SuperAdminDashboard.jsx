@@ -4,6 +4,7 @@ import React, {
     useCallback,
     useMemo,
 } from 'react';
+import { X } from 'lucide-react';
 
 import axios from 'axios';
 import DashboardHeader from '../components/super-admin/dashboard/DashboardHeader';
@@ -12,8 +13,13 @@ import CompaniesTable from '../components/super-admin/dashboard/CompaniesTable';
 import ProvisionModal from '../components/super-admin/provision/provisionModal';
 
 const API_URL = 'http://localhost:3000';
+import { useLanguage } from '../context/LanguageContext';
+import { superadminTranslations } from '../translations/superadmin';
 
 const SuperAdminDashboard = () => {
+    const { lang } = useLanguage();
+    const currentLang = lang ? lang.toLowerCase() : 'fr';
+    const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
     const [companies, setCompanies] =
         useState([]);
 
@@ -28,6 +34,8 @@ const SuperAdminDashboard = () => {
 
     const [editingCompany, setEditingCompany] =
         useState(null);
+
+    const [errorMsg, setErrorMsg] = useState(null);
 
     const token =
         localStorage.getItem('token');
@@ -53,8 +61,7 @@ const SuperAdminDashboard = () => {
             setCompanies(res.data);
         } catch (err) {
             console.error(err);
-
-            alert(
+            setErrorMsg(
                 err?.response?.data?.message ||
                 'Erreur lors du chargement'
             );
@@ -67,13 +74,15 @@ const SuperAdminDashboard = () => {
         fetchCompanies();
     }, [fetchCompanies]);
 
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
     const deleteCompany = async (id) => {
-        const confirmDelete = window.confirm(
-            'Supprimer cette entreprise ?'
-        );
+        setDeleteConfirmId(id);
+    };
 
-        if (!confirmDelete) return;
-
+    const confirmDelete = async () => {
+        const id = deleteConfirmId;
+        setDeleteConfirmId(null);
         try {
             await api.delete(
                 `/super-admin/company/${id}`
@@ -84,10 +93,9 @@ const SuperAdminDashboard = () => {
             );
         } catch (err) {
             console.error(err);
-
-            alert(
+            setErrorMsg(
                 err?.response?.data?.message ||
-                'Erreur lors de la suppression'
+                t.deleteError
             );
         }
     };
@@ -105,10 +113,9 @@ const SuperAdminDashboard = () => {
             setIsModalOpen(true);
         } catch (err) {
             console.error(err);
-
-            alert(
+            setErrorMsg(
                 err?.response?.data?.message ||
-                'Erreur lors du chargement de l’entreprise'
+                t.loadError
             );
         }
     };
@@ -127,13 +134,20 @@ const SuperAdminDashboard = () => {
         );
 
     return (
-        <div className="w-full min-h-screen bg-[#F4F6FB] pt-24 flex justify-center">
+        <div className="w-full min-h-screen bg-[#020617] text-white pt-24 flex justify-center">
 
             <div className="w-full px-4 lg:px-10">
 
                 <main className="w-full">
 
                     <div className="py-6 lg:py-10">
+
+                        {errorMsg && (
+                            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl font-bold flex justify-between items-center mb-6 text-sm">
+                                {errorMsg}
+                                <button onClick={() => setErrorMsg(null)}><X size={20} /></button>
+                            </div>
+                        )}
 
                         <DashboardHeader
                             onAddClient={() => {
@@ -166,6 +180,24 @@ const SuperAdminDashboard = () => {
                     onSuccess={fetchCompanies}
                     editingCompany={editingCompany}
                 />
+
+                {deleteConfirmId && (
+                    <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 text-white">
+                        <div className="bg-slate-900 border border-red-500/20 p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative text-center">
+                            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <X className="text-red-500" size={32} />
+                            </div>
+                            <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-2 text-red-400">{t.deleteTitle}</h2>
+                            <p className="text-slate-400 font-bold mb-8 text-sm">
+                                {t.deleteDesc}
+                            </p>
+                            <div className="flex gap-4">
+                                <button onClick={() => setDeleteConfirmId(null)} className="flex-1 bg-slate-800 text-white font-black py-4 rounded-xl hover:bg-slate-700 transition uppercase tracking-widest text-xs">{t.cancel}</button>
+                                <button onClick={confirmDelete} className="flex-1 bg-red-600 text-white font-black py-4 rounded-xl hover:bg-red-500 transition shadow-lg shadow-red-500/20 uppercase tracking-widest text-xs">{t.delete}</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

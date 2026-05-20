@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import api from '../../api/axios';
+import { useLanguage } from '../../context/LanguageContext';
+import { managerTranslations } from '../../translations/manager';
 
 export default function MassShiftModal({ onClose, employees, schedules, onRefresh, formatDate }) {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = managerTranslations[currentLang] || managerTranslations['fr'];
   const [isLoading, setIsLoading] = useState(false);
   const [massConfig, setMassConfig] = useState({
     userId: '',
@@ -12,10 +17,14 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
     customEndTime: '17:00',
     skipWeekends: false
   });
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   const handleMassGenerate = async (e) => {
     e.preventDefault();
-    if (!massConfig.userId || !massConfig.scheduleId) return alert("Sélectionnez d'abord un employé et un planning.");
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    if (!massConfig.userId || !massConfig.scheduleId) return setErrorMsg(t.massErrSelect);
 
     const selectedSchedule = schedules.find(s => s.id === parseInt(massConfig.scheduleId));
     if (!selectedSchedule) return;
@@ -33,7 +42,7 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
 
     const sStartParts = extractToParts(selectedSchedule.startDate);
     const sEndParts = extractToParts(selectedSchedule.endDate);
-    if (!sStartParts || !sEndParts) return alert("Erreur format de date du planning.");
+    if (!sStartParts || !sEndParts) return setErrorMsg(t.massErrFormat);
 
     setIsLoading(true);
 
@@ -42,7 +51,7 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
       const availabilities = availRes.data;
 
       if (!availabilities || availabilities.length === 0) {
-        alert("Cet employé n'a configuré aucune disponibilité pour le moment.");
+        setErrorMsg(t.massErrNoAvail);
         setIsLoading(false);
         return;
       }
@@ -92,12 +101,14 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
         dateCursor.setUTCDate(dateCursor.getUTCDate() + 1);
       }
 
-      alert(`Génération terminée ! ${createdCount} shifts créés. ${errorCount > 0 ? `(${errorCount} conflits ignorés)` : ''}`);
-      onClose();
-      onRefresh();
+      setSuccessMsg(`${t.massSuccessPart1} ${createdCount} ${t.massSuccessPart2} ${errorCount > 0 ? `(${errorCount} ${t.massSuccessConflicts})` : ''}`);
+      setTimeout(() => {
+          onClose();
+          onRefresh();
+      }, 3000);
     } catch (err) {
       console.error(err);
-      alert("Erreur critique lors de la génération automatique.");
+      setErrorMsg(t.massErrCritical);
     }
     setIsLoading(false);
   };
@@ -106,19 +117,33 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
     <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-md flex items-center justify-center z-[9999] p-4 text-white overflow-y-auto pt-24 pb-10">
       <div className="bg-slate-900 border border-white/10 rounded-[3rem] p-10 max-w-lg w-full shadow-2xl relative mt-10 lg:mt-0">
         <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-white transition"><X size={28} /></button>
-        <h2 className="text-3xl font-black italic tracking-tighter mb-2 uppercase">Génération <span className="text-indigo-500">Automatique</span></h2>
-        <p className="text-slate-400 font-medium mb-8">Crée des shifts sur tout un planning selon les disponibilités.</p>
+        <h2 className="text-3xl font-black italic tracking-tighter mb-2 uppercase">{t.massTitle} <span className="text-indigo-500">{t.massTitleSpan}</span></h2>
+        <p className="text-slate-400 font-medium mb-8">{t.massSubtitle}</p>
         
+        {errorMsg && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl font-bold flex justify-between items-center mb-6 text-sm">
+            {errorMsg}
+            <button onClick={() => setErrorMsg(null)}><X size={20} /></button>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-2xl font-bold flex justify-between items-center mb-6 text-sm">
+            {successMsg}
+            <button onClick={() => setSuccessMsg(null)}><X size={20} /></button>
+          </div>
+        )}
+
         <form onSubmit={handleMassGenerate} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Employé</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t.massEmployeeLabel}</label>
             <select
               required
               className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-4 font-bold text-white outline-none focus:border-indigo-500"
               value={massConfig.userId}
               onChange={e => setMassConfig({...massConfig, userId: e.target.value})}
             >
-              <option value="">Sélectionner un employé...</option>
+              <option value="">{t.massSelectEmployee}</option>
               {employees.map(emp => (
                 <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} ({emp.role})</option>
               ))}
@@ -126,14 +151,14 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Planning lié</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t.massPlanningLabel}</label>
             <select
               required
               className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-4 font-bold text-white outline-none focus:border-indigo-500"
               value={massConfig.scheduleId}
               onChange={e => setMassConfig({...massConfig, scheduleId: e.target.value})}
             >
-              <option value="">Sélectionner un planning...</option>
+              <option value="">{t.massSelectPlanning}</option>
               {schedules.map(sched => (
                 <option key={sched.id} value={sched.id}>{sched.name} ({formatDate(sched.startDate)} - {formatDate(sched.endDate)})</option>
               ))}
@@ -143,33 +168,33 @@ export default function MassShiftModal({ onClose, employees, schedules, onRefres
           <div className="bg-slate-950/80 p-5 rounded-2xl border border-white/5 space-y-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" checked={massConfig.skipWeekends} onChange={e => setMassConfig({...massConfig, skipWeekends: e.target.checked})} className="w-5 h-5 accent-indigo-500 rounded bg-slate-900 border-slate-700" />
-              <span className="font-bold text-sm">Ignorer les week-ends (Sam-Dim)</span>
+              <span className="font-bold text-sm">{t.massSkipWeekends}</span>
             </label>
             
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" checked={massConfig.useCustomTimes} onChange={e => setMassConfig({...massConfig, useCustomTimes: e.target.checked})} className="w-5 h-5 accent-indigo-500 rounded bg-slate-900 border-slate-700" />
-              <span className="font-bold text-sm">Forcer des horaires personnalisés</span>
+              <span className="font-bold text-sm">{t.massForceTimes}</span>
             </label>
 
             {massConfig.useCustomTimes && (
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Début forcé</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t.massCustomStart}</label>
                   <input type="time" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-bold text-white [color-scheme:dark]" value={massConfig.customStartTime} onChange={e => setMassConfig({...massConfig, customStartTime: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fin forcée</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t.massCustomEnd}</label>
                   <input type="time" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-bold text-white [color-scheme:dark]" value={massConfig.customEndTime} onChange={e => setMassConfig({...massConfig, customEndTime: e.target.value})} />
                 </div>
               </div>
             )}
             {!massConfig.useCustomTimes && (
-              <p className="text-xs text-slate-500 italic mt-2">Les horaires définis dans les disponibilités de l'employé seront utilisés.</p>
+              <p className="text-xs text-slate-500 italic mt-2">{t.massUseAvailabilities}</p>
             )}
           </div>
 
           <button disabled={isLoading} type="submit" className="w-full bg-indigo-600 text-white rounded-[1.5rem] py-5 font-black hover:bg-indigo-500 transition shadow-2xl shadow-indigo-500/20 uppercase tracking-widest text-sm mt-4 disabled:opacity-50">
-            {isLoading ? "Génération en cours..." : "Lancer la génération"}
+            {isLoading ? t.massGeneratingBtn : t.massGenerateBtn}
           </button>
         </form>
       </div>

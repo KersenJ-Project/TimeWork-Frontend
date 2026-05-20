@@ -1,26 +1,30 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Building, MoreVertical, PlusCircle, Search } from 'lucide-react';
+import { Building, Edit, Search, X } from 'lucide-react';
+import api from '../api/axios';
+import ProvisionModal from '../components/super-admin/provision/provisionModal';
+import { useLanguage } from '../context/LanguageContext';
+import { superadminTranslations } from '../translations/superadmin';
 
 export default function ManageCompanies() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
+
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/api/super-admin/companies', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await api.get('/super-admin/companies');
       setCompanies(response.data || []);
     } catch (err) {
       console.error('Erreur récupération compagnies', err);
-      setCompanies([
-        { id: 1, name: 'RestoTech Inc.', status: 'ACTIVE', usersCount: 15, createdAt: '2026-05-01' },
-      ]);
     } finally {
       setLoading(false);
     }
@@ -30,94 +34,123 @@ export default function ManageCompanies() {
     fetchCompanies();
   }, []);
 
+  const handleEdit = async (company) => {
+    try {
+      setErrorMsg(null);
+      const res = await api.get(`/super-admin/company/${company.id}`);
+      setEditingCompany(res.data);
+      setIsModalOpen(true);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(t.loadError);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setEditingCompany(null);
+    setIsModalOpen(false);
+  };
+
   const filteredCompanies = companies.filter(c => 
     c.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div className="w-full p-6 lg:p-10 space-y-8 text-white min-h-[calc(100vh-4rem)]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-            <Building className="text-blue-500" size={28} />
-            Gestion des Entreprises
+          <h1 className="text-4xl font-black italic tracking-tighter flex items-center gap-3">
+            <Building className="text-blue-500" size={32} />
+            {t.manageCompaniesTitle} <span className="text-blue-500">{t.manageCompaniesEntities}</span>
           </h1>
-          <p className="text-slate-400">Consultez et administrez toutes les instances locataires.</p>
+          <p className="text-slate-400 font-medium mt-1">{t.manageCompaniesDesc}</p>
         </div>
       </div>
 
-      <div className="bg-slate-900/40 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
-        <div className="p-4 border-b border-white/5 flex flex-col md:flex-row items-center gap-4 justify-between bg-white/[0.02]">
+
+      {errorMsg && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl font-bold flex justify-between items-center text-sm">
+          {errorMsg}
+          <button onClick={() => setErrorMsg(null)}><X size={20} /></button>
+        </div>
+      )}
+
+      <div className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-slate-800 bg-slate-950/50 flex flex-col md:flex-row items-center gap-4 justify-between">
           <div className="relative w-full md:w-96">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-              <Search size={16} />
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+              <Search size={18} />
             </div>
             <input 
               type="text" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Rechercher une entreprise..."
-              className="w-full bg-[#020617] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-medium"
+              placeholder={t.searchPlaceholder}
+              className="w-full bg-[#020617] border border-slate-800 rounded-2xl pl-12 pr-4 py-3 text-sm text-white font-bold placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
             />
           </div>
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            {filteredCompanies.length} Locataire(s)
+          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800/50 px-4 py-2 rounded-xl">
+            {filteredCompanies.length} {t.tenantCount}
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5 bg-slate-800/30 text-xs uppercase tracking-wider text-slate-400 font-black">
-                <th className="p-4">Entreprise</th>
-                <th className="p-4">Statut</th>
-                <th className="p-4">Employés</th>
-                <th className="p-4">Création</th>
-                <th className="p-4 text-right">Actions</th>
+              <tr className="border-b border-slate-800 bg-slate-900/80 text-[10px] uppercase tracking-widest text-slate-500 font-black">
+                <th className="p-6">{t.colCompany}</th>
+                <th className="p-6">{t.colCode}</th>
+                <th className="p-6">{t.colStatus}</th>
+                <th className="p-6">{t.colCreated}</th>
+                <th className="p-6 text-right">{t.colActions}</th>
               </tr>
             </thead>
-            <tbody className="text-sm">
+            <tbody className="divide-y divide-slate-800/50">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="p-8 text-center text-slate-500">
-                    <div className="flex items-center justify-center gap-2">
-                       <svg className="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                       </svg>
-                       Chargement...
-                    </div>
+                  <td colSpan="5" className="p-12 text-center text-slate-500 font-black italic uppercase animate-pulse">
+                    {t.loadingCompanies}
                   </td>
                 </tr>
               ) : filteredCompanies.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="p-8 text-center text-slate-500 italic">Aucune entreprise trouvée.</td>
+                  <td colSpan="5" className="p-12 text-center text-slate-500 font-bold italic uppercase text-sm">
+                    {t.noCompanyFound}
+                  </td>
                 </tr>
               ) : (
                 filteredCompanies.map(company => (
-                  <tr key={company.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                    <td className="p-4 font-bold text-white flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-black">
+                  <tr key={company.id} className="hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => handleEdit(company)}>
+                    <td className="p-6 font-bold text-white flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-black text-xl">
                         {company.name?.charAt(0).toUpperCase()}
                       </div>
-                      {company.name}
+                      <div>
+                        <span className="block text-sm uppercase tracking-tight">{company.name}</span>
+                        <span className="block text-[10px] text-slate-500 tracking-widest mt-1">ID #{company.id}</span>
+                      </div>
                     </td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold leading-none capitalize ${
-                        company.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
-                      }`}>
-                        {company.status}
+                    <td className="p-6">
+                      <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-lg text-xs font-black tracking-widest">
+                        {company.companyCode}
                       </span>
                     </td>
-                    <td className="p-4 text-slate-300 font-medium">
-                      {company.usersCount || 0}
+                    <td className="p-6">
+                      <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                        company.isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      }`}>
+                        {company.isActive ? t.statusActive : t.statusInactive}
+                      </span>
                     </td>
-                    <td className="p-4 text-slate-400 text-xs">
+                    <td className="p-6 text-slate-400 text-xs font-bold">
                       {new Date(company.createdAt).toLocaleDateString('fr-CA')}
                     </td>
-                    <td className="p-4 text-right">
-                      <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors">
-                        <MoreVertical size={16} />
+                    <td className="p-6 text-right">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEdit(company); }}
+                        className="p-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm"
+                      >
+                        <Edit size={16} />
                       </button>
                     </td>
                   </tr>
@@ -127,6 +160,13 @@ export default function ManageCompanies() {
           </table>
         </div>
       </div>
+
+      <ProvisionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={fetchCompanies}
+        editingCompany={editingCompany}
+      />
     </div>
   );
 }

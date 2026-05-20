@@ -3,8 +3,13 @@ import { Calendar, Clock, CheckCircle, ArrowRight } from 'lucide-react';
 import api from '../../api/axios';
 import { getUserId } from '../../api/userId';
 import { MiniStat } from '../manager/DashboardWidgets';
+import { useLanguage } from '../../context/LanguageContext';
+import { employeeTranslations } from '../../translations/employee';
 
 export default function EmployeeOverviewTab() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = employeeTranslations[currentLang] || employeeTranslations['fr'];
   const [shifts, setShifts] = useState([]);
   const [leaves, setLeaves] = useState([]);
   const [isWorking, setIsWorking] = useState(false);
@@ -57,20 +62,20 @@ export default function EmployeeOverviewTab() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {isLoading ? (
-        <div className="text-center py-20 font-black text-slate-600 italic">Chargement...</div>
+        <div className="text-center py-20 font-black text-slate-600 italic">{t.loading}</div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <MiniStat label="Prochains Shifts" value={upcomingShifts.length} bg="bg-indigo-500/10" iconColor="text-indigo-400" />
-            <MiniStat label="Statut" value={isWorking ? 'EN LIGNE' : 'HORS LIGNE'} bg={isWorking ? 'bg-emerald-500/10' : 'bg-slate-800'} iconColor={isWorking ? 'text-emerald-400' : 'text-slate-400'} />
-            <MiniStat label="Congés" value={leaves.length} bg="bg-blue-500/10" iconColor="text-blue-400" />
+            <MiniStat label={t.overNextShifts} value={upcomingShifts.length} bg="bg-indigo-500/10" iconColor="text-indigo-400" />
+            <MiniStat label={t.overStatus} value={isWorking ? t.overOnline : t.overOffline} bg={isWorking ? 'bg-emerald-500/10' : 'bg-slate-800'} iconColor={isWorking ? 'text-emerald-400' : 'text-slate-400'} />
+            <MiniStat label={t.overLeaves} value={leaves.length} bg="bg-blue-500/10" iconColor="text-blue-400" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <Calendar className="text-indigo-500" size={24} />
-                <h3 className="font-black text-white text-xl italic uppercase tracking-tighter">Votre Prochain Shift</h3>
+                <h3 className="font-black text-white text-xl italic uppercase tracking-tighter">{t.overYourNextShift}</h3>
               </div>
               {nextShift ? (
                 <div className="bg-indigo-950/30 border border-indigo-500/20 p-6 rounded-[2rem] flex flex-col gap-4">
@@ -83,14 +88,14 @@ export default function EmployeeOverviewTab() {
                   </div>
                 </div>
               ) : (
-                <p className="text-slate-500 italic font-bold">Aucun shift à venir.</p>
+                <p className="text-slate-500 italic font-bold">{t.overNoUpcomingShift}</p>
               )}
             </div>
 
             <div className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <CheckCircle className="text-emerald-500" size={24} />
-                <h3 className="font-black text-white text-xl italic uppercase tracking-tighter">Votre Statut Actuel</h3>
+                <h3 className="font-black text-white text-xl italic uppercase tracking-tighter">{t.overYourCurrentStatus}</h3>
               </div>
               <div className="flex items-center gap-6 p-6 bg-slate-950/50 rounded-[2rem] border border-white/5">
                 <div className={`h-16 w-16 rounded-2xl flex items-center justify-center border ${isWorking ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400 animate-pulse' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
@@ -98,10 +103,10 @@ export default function EmployeeOverviewTab() {
                 </div>
                 <div>
                   <p className={`font-black text-2xl uppercase tracking-tighter ${isWorking ? 'text-emerald-400' : 'text-slate-400'}`}>
-                    {isWorking ? 'En Poste' : 'Hors Ligne'}
+                    {isWorking ? t.overAtWork : t.overOffline}
                   </p>
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    {isWorking ? 'Vous êtes actuellement pointé.' : "Vous n'êtes pas au travail."}
+                    {isWorking ? t.overCurrentlyWorking : t.overNotAtWork}
                   </p>
                 </div>
               </div>

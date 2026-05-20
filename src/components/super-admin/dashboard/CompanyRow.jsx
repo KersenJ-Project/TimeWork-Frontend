@@ -1,25 +1,24 @@
 import React from 'react';
-
-import {
-    Building2,
-    Mail,
-    Edit,
-    Trash2,
-} from 'lucide-react';
-
+import { Building2, Mail, Edit, Trash2 } from 'lucide-react';
 import ActionButton from './ActionButton';
+import { useLanguage } from '../../../context/LanguageContext';
+import { superadminTranslations } from '../../../translations/superadmin';
 
 const CompanyRow = ({
     company,
     onEdit,
     onDelete,
 }) => {
+    const { lang } = useLanguage();
+    const currentLang = lang ? lang.toLowerCase() : 'fr';
+    const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
+
     return (
         <tr
             className="
         border-b
-        border-gray-50
-        hover:bg-gray-50/80
+        border-white/5
+        hover:bg-slate-800/50
         transition-all
       "
         >
@@ -32,7 +31,7 @@ const CompanyRow = ({
                         className="
               w-14 h-14
               rounded-2xl
-              bg-indigo-50
+              bg-indigo-500/10
               flex
               items-center
               justify-center
@@ -40,17 +39,17 @@ const CompanyRow = ({
                     >
                         <Building2
                             size={24}
-                            className="text-indigo-600"
+                            className="text-indigo-400"
                         />
                     </div>
 
                     <div>
 
-                        <p className="font-black text-gray-900 text-lg">
+                        <p className="font-black text-white text-lg">
                             {company.name}
                         </p>
 
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className="text-sm text-slate-400 mt-1">
                             Client ID #{company.id}
                         </p>
 
@@ -66,8 +65,8 @@ const CompanyRow = ({
                     className="
             px-4 py-2
             rounded-full
-            bg-indigo-50
-            text-indigo-600
+            bg-indigo-500/10
+            text-indigo-400
             text-xs
             font-black
           "
@@ -90,8 +89,8 @@ const CompanyRow = ({
             text-xs
             font-black
             ${company.isActive
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-gray-100 text-gray-600'
+                            ? 'bg-emerald-500/10 text-emerald-400'
+                            : 'bg-slate-800 text-slate-400'
                         }
           `}
                 >
@@ -100,15 +99,15 @@ const CompanyRow = ({
                         className={`
               w-2 h-2 rounded-full
               ${company.isActive
-                                ? 'bg-emerald-500'
-                                : 'bg-gray-400'
+                                ? 'bg-emerald-400'
+                                : 'bg-slate-500'
                             }
             `}
                     />
 
                     {company.isActive
-                        ? 'ACTIF'
-                        : 'INACTIF'}
+                        ? t.statusActive
+                        : t.statusInactive}
 
                 </span>
 

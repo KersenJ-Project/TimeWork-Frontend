@@ -4,18 +4,19 @@ import { User } from 'lucide-react';
 const ManagerSection = ({
   formData,
   updateField,
+  t
 }) => {
   return (
-    <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
+    <div className="bg-slate-900/50 rounded-3xl p-6 border border-white/5">
 
       <div className="flex items-center gap-2 mb-6">
         <User
           size={20}
-          className="text-indigo-600"
+          className="text-indigo-400"
         />
 
-        <h3 className="font-black text-gray-900">
-          Manager (Gérant)
+        <h3 className="font-black text-white">
+          {t.managerSectionTitle}
         </h3>
       </div>
 
@@ -25,13 +26,13 @@ const ManagerSection = ({
 
           <div className="space-y-2">
             <label className="label">
-              Prénom
+              {t.firstName}
             </label>
 
             <input
               required
               value={formData.managerFirstName}
-              placeholder="Jean"
+              placeholder={t.firstNamePH}
               className="input"
               onChange={(e) =>
                 updateField(
@@ -44,13 +45,13 @@ const ManagerSection = ({
 
           <div className="space-y-2">
             <label className="label">
-              Nom
+              {t.lastName}
             </label>
 
             <input
               required
               value={formData.managerLastName}
-              placeholder="Tremblay"
+              placeholder={t.lastNamePH}
               className="input"
               onChange={(e) =>
                 updateField(
@@ -65,14 +66,14 @@ const ManagerSection = ({
 
         <div className="space-y-2">
           <label className="label">
-            Email professionnel
+            {t.email}
           </label>
 
           <input
             required
             type="email"
             value={formData.managerEmail}
-            placeholder="manager@entreprise.com"
+            placeholder={t.emailPH}
             className="input"
             onChange={(e) =>
               updateField(
@@ -85,13 +86,13 @@ const ManagerSection = ({
 
         <div className="space-y-2">
           <label className="label">
-            Téléphone
+            {t.phone}
           </label>
 
           <input
             required
             value={formData.managerPhone}
-            placeholder="(514) 555-1234"
+            placeholder={t.phonePH}
             className="input"
             onChange={(e) =>
               updateField(

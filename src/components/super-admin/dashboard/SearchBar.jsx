@@ -1,15 +1,16 @@
 import React from 'react';
 import { Search } from 'lucide-react';
+import { useLanguage } from '../../../context/LanguageContext';
+import { superadminTranslations } from '../../../translations/superadmin';
 
-const SearchBar = ({
-    searchTerm,
-    setSearchTerm,
-}) => {
+const SearchBar = ({ searchTerm, setSearchTerm }) => {
+    const { lang } = useLanguage();
+    const currentLang = lang ? lang.toLowerCase() : 'fr';
+    const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
+
     return (
-        <div className="p-7 border-b border-gray-100">
-
+        <div className="p-7 border-b border-slate-800">
             <div className="relative max-w-md">
-
                 <Search
                     size={20}
                     className="
@@ -17,17 +18,14 @@ const SearchBar = ({
             left-4
             top-1/2
             -translate-y-1/2
-            text-gray-400
+            text-slate-400
           "
                 />
-
                 <input
                     type="text"
-                    placeholder="Rechercher..."
+                    placeholder={t.searchPlaceholder}
                     value={searchTerm}
-                    onChange={(e) =>
-                        setSearchTerm(e.target.value)
-                    }
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="
             w-full
             h-14
@@ -35,14 +33,13 @@ const SearchBar = ({
             pr-5
             rounded-2xl
             border
-            border-gray-200
-            bg-[#F9FAFB]
-            text-gray-900
-            placeholder:text-gray-400
+            border-slate-800
+            bg-slate-950/50
+            text-white
+            font-bold
+            placeholder:text-slate-500
             outline-none
-            focus:ring-4
-            focus:ring-indigo-100
-            focus:border-indigo-400
+            focus:border-indigo-500
             transition-all
           "
                 />

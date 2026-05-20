@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Clock, Calendar, ChevronDown, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, Clock, Calendar, ChevronDown, ArrowRight, X } from 'lucide-react';
 import api from '../api/axios';
 import CreateShiftModal from '../components/manager/CreateShiftModal';
 import MassShiftModal from '../components/manager/MassShiftModal';
+import { useLanguage } from '../context/LanguageContext';
+import { managerTranslations } from '../translations/manager';
 
 export default function ShiftsPage() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = managerTranslations[currentLang] || managerTranslations['fr'];
   const [shifts, setShifts] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [schedules, setSchedules] = useState([]);
@@ -12,6 +17,7 @@ export default function ShiftsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMassModalOpen, setIsMassModalOpen] = useState(false);
   const [expandedUsers, setExpandedUsers] = useState({});
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -49,13 +55,21 @@ export default function ShiftsPage() {
 
   useEffect(() => { fetchData(); }, []);
 
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
   const handleDeleteShift = async (id) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce shift ?")) return;
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDeleteShift = async () => {
+    const id = deleteConfirmId;
+    setDeleteConfirmId(null);
+    setErrorMsg(null);
     try {
       await api.delete(`/shift/${id}`);
       fetchData(); 
     } catch (error) {
-      alert("Erreur lors de la suppression.");
+      setErrorMsg(t.shiftLoadError);
     }
   };
 
@@ -109,24 +123,31 @@ export default function ShiftsPage() {
     <div className="w-full p-6 lg:p-10 space-y-8 bg-[#020617] min-h-screen text-white">
       <div className="flex flex-col md:flex-row justify-between items-center border-b border-slate-800 pb-6 gap-4">
         <div>
-          <h1 className="text-4xl font-black italic tracking-tighter uppercase">Gestion des <span className="text-blue-500">Shifts</span></h1>
-          <p className="text-slate-400 font-medium mt-1 italic">Assignez des heures de travail à vos employés.</p>
+          <h1 className="text-4xl font-black italic tracking-tighter uppercase">{t.shiftTitle} <span className="text-blue-500">{t.shiftTitleSpan}</span></h1>
+          <p className="text-slate-400 font-medium mt-1 italic">{t.shiftSubtitle}</p>
         </div>
         <div className="flex items-center gap-4">
           <button onClick={() => setIsMassModalOpen(true)} className="bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-6 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-indigo-600 hover:text-white shadow-lg transition-all active:scale-95 uppercase text-sm">
-            Générer Shifts
+            {t.shiftGenerate}
           </button>
           <button onClick={() => setIsModalOpen(true)} className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-blue-500 shadow-xl transition-all active:scale-95">
-            <Plus size={24} /> <span>NOUVEAU SHIFT</span>
+            <Plus size={24} /> <span>{t.shiftNew}</span>
           </button>
         </div>
       </div>
 
+      {errorMsg && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl font-bold flex justify-between items-center text-sm">
+          {errorMsg}
+          <button onClick={() => setErrorMsg(null)}><X size={20} /></button>
+        </div>
+      )}
+
       <div className="space-y-4">
         {isLoading ? (
-          <div className="p-20 text-center font-black text-slate-400 italic animate-pulse">Chargement des shifts...</div>
+          <div className="p-20 text-center font-black text-slate-400 italic animate-pulse">{t.shiftLoading}</div>
         ) : shifts.length === 0 ? (
-          <div className="p-16 text-center font-bold text-slate-400 italic text-xl uppercase bg-slate-900/50 border-2 border-dashed border-white/5 rounded-[2.5rem]">Aucun shift assigné pour le moment.</div>
+          <div className="p-16 text-center font-bold text-slate-400 italic text-xl uppercase bg-slate-900/50 border-2 border-dashed border-white/5 rounded-[2.5rem]">{t.shiftNoAssigned}</div>
         ) : (
           Object.values(shiftsByUser).map(({ user, shifts }) => (
             <div key={user.id} className="bg-slate-900/50 border border-white/5 rounded-[2rem] shadow-sm overflow-hidden mb-4 transition-all group">
@@ -142,7 +163,7 @@ export default function ShiftsPage() {
                     <h3 className="font-black text-lg text-white uppercase tracking-tight">{user.firstName} {user.lastName}</h3>
                     <div className="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">
                       <Calendar size={14} className="text-blue-400" />
-                      <span>{shifts.length} shift{shifts.length > 1 ? 's' : ''} assigné{shifts.length > 1 ? 's' : ''}</span>
+                      <span>{shifts.length} {shifts.length > 1 ? t.shiftAssignedPlural : t.shiftAssignedSingular}</span>
                     </div>
                   </div>
                 </div>
@@ -164,7 +185,7 @@ export default function ShiftsPage() {
                           <div>
                             <div className="font-black text-white text-md uppercase tracking-wider">{formatDate(shift.date)}</div>
                             <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">
-                              {shift.schedule?.name ? `Cycle: ${shift.schedule.name}` : "Planning Inconnu"}
+                              {shift.schedule?.name ? `${t.shiftCycle}${shift.schedule.name}` : t.shiftUnknownPlanning}
                             </div>
                           </div>
                         </div>
@@ -172,12 +193,12 @@ export default function ShiftsPage() {
                         <div className="flex items-center gap-6">
                           <div className="flex items-center gap-6 bg-slate-950/80 px-6 py-3 rounded-2xl border border-slate-800">
                             <div className="text-center">
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">Début</p>
+                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">{t.shiftStart}</p>
                               <p className="font-black text-md text-white">{formatTime(shift.startTime)}</p>
                             </div>
                             <ArrowRight className="text-slate-600" size={16} />
                             <div className="text-center">
-                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">Fin</p>
+                              <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">{t.shiftEnd}</p>
                               <p className="font-black text-md text-white">{formatTime(shift.endTime)}</p>
                             </div>
                           </div>
@@ -215,6 +236,22 @@ export default function ShiftsPage() {
           formatDate={formatDate} 
         />
       )}
-    </div>
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-[#020617]/90 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 text-white">
+          <div className="bg-slate-900 border border-red-500/20 p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl relative text-center">
+            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <X className="text-red-500" size={32} />
+            </div>
+            <h2 className="text-2xl font-black italic uppercase tracking-tighter mb-2 text-red-400">{t.shiftDeleteTitle}</h2>
+            <p className="text-slate-400 font-bold mb-8 text-sm">
+              {t.shiftDeleteDesc}
+            </p>
+            <div className="flex gap-4">
+              <button onClick={() => setDeleteConfirmId(null)} className="flex-1 bg-slate-800 text-white font-black py-4 rounded-xl hover:bg-slate-700 transition uppercase tracking-widest text-xs">{t.shiftCancel}</button>
+              <button onClick={confirmDeleteShift} className="flex-1 bg-red-600 text-white font-black py-4 rounded-xl hover:bg-red-500 transition shadow-lg shadow-red-500/20 uppercase tracking-widest text-xs">{t.shiftDelete}</button>
+            </div>
+          </div>
+        </div>
+      )}    </div>
   );
 }

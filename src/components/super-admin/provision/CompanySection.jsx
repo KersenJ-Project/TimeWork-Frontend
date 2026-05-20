@@ -4,18 +4,19 @@ import { Building2 } from 'lucide-react';
 const CompanySection = ({
   formData,
   updateField,
+  t
 }) => {
   return (
-    <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
+    <div className="bg-slate-900/50 rounded-3xl p-6 border border-white/5">
 
       <div className="flex items-center gap-2 mb-6">
         <Building2
           size={20}
-          className="text-indigo-600"
+          className="text-indigo-400"
         />
 
-        <h3 className="font-black text-gray-900">
-          Entreprise
+        <h3 className="font-black text-white">
+          {t.companySectionTitle}
         </h3>
       </div>
 
@@ -23,13 +24,13 @@ const CompanySection = ({
 
         <div className="space-y-2">
           <label className="label">
-            Nom de l'entreprise
+            {t.companyName}
           </label>
 
           <input
             required
             value={formData.companyName}
-            placeholder="Ex: Restaurant Milano"
+            placeholder={t.companyNamePH}
             className="input"
             onChange={(e) =>
               updateField(
@@ -42,13 +43,13 @@ const CompanySection = ({
 
         <div className="space-y-2">
           <label className="label">
-            Adresse
+            {t.address}
           </label>
 
           <input
             required
             value={formData.companyAddress}
-            placeholder="123 Rue Sherbrooke"
+            placeholder={t.addressPH}
             className="input"
             onChange={(e) =>
               updateField(
@@ -61,13 +62,13 @@ const CompanySection = ({
 
         <div className="space-y-2">
           <label className="label">
-            Téléphone
+            {t.phone}
           </label>
 
           <input
             required
             value={formData.companyPhone}
-            placeholder="(514) 555-1234"
+            placeholder={t.phonePH}
             className="input"
             onChange={(e) =>
               updateField(

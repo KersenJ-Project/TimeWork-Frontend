@@ -1,16 +1,22 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
+import { useLanguage } from '../../../context/LanguageContext';
+import { superadminTranslations } from '../../../translations/superadmin';
 
 const DashboardHeader = ({
     onAddClient,
 }) => {
+    const { lang } = useLanguage();
+    const currentLang = lang ? lang.toLowerCase() : 'fr';
+    const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
+
     return (
         <div
             className="
         mb-10
         rounded-[2rem]
-        border border-white/40
-        bg-white/70
+        border border-white/5
+        bg-slate-900/50
         backdrop-blur-xl
         px-8
         py-6
@@ -26,11 +32,11 @@ const DashboardHeader = ({
 
                         <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
 
-                        <p className="text-xs font-black uppercase tracking-[0.25em] text-indigo-600">
-                            Console Globale
+                        <p className="text-xs font-black uppercase tracking-[0.25em] text-indigo-400">
+                            {t.globalConsole}
                         </p>
 
-                        <div className="h-px w-20 bg-indigo-200"></div>
+                        <div className="h-px w-20 bg-indigo-500/30"></div>
 
                     </div>
 
@@ -39,14 +45,14 @@ const DashboardHeader = ({
               text-5xl
               font-black
               tracking-tight
-              text-[#0B1023]
+              text-white
             "
                     >
-                        Gestion des Clients
+                        {t.clientManagement}
                     </h1>
 
-                    <p className="text-gray-500 mt-3 text-lg">
-                        Supervisez les entreprises et leurs accès.
+                    <p className="text-slate-400 mt-3 text-lg">
+                        {t.clientManagementDesc}
                     </p>
 
                 </div>
@@ -77,7 +83,7 @@ const DashboardHeader = ({
                     >
                         <Plus size={20} />
 
-                        Nouveau Client
+                        {t.addClientBtn}
                     </button>
 
                 </div>

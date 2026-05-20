@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DayOfWeek } from '../enum/DayOfWeek';
 import { CalendarDays, Clock, CheckCircle2, XCircle } from 'lucide-react';
@@ -6,6 +6,24 @@ import { CalendarDays, Clock, CheckCircle2, XCircle } from 'lucide-react';
 export default function AvailabilityForm({ userId }) {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [companyHours, setCompanyHours] = useState(null);
+
+  useEffect(() => {
+    const fetchCompanyHours = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const api = axios.create({ baseURL: 'http://localhost:3000', headers: { Authorization: `Bearer ${token}` } });
+        const meRes = await api.get('/auth/whoami');
+        if (meRes.data?.companyId) {
+          const compRes = await api.get(`/company/${meRes.data.companyId}`);
+          setCompanyHours(compRes.data?.operatingHours);
+        }
+      } catch (err) {
+        console.error("Could not fetch company hours", err);
+      }
+    };
+    fetchCompanyHours();
+  }, []);
 
   const [formData, setFormData] = useState({
     dayOfWeek: DayOfWeek.MONDAY,
@@ -19,10 +37,24 @@ export default function AvailabilityForm({ userId }) {
     setLoading(true);
     setStatus({ type: '', message: '' });
 
+    let start = formData.startTime;
+    let end = formData.endTime;
+    if (formData.isAllDay) {
+      const dayStr = formData.dayOfWeek.toLowerCase();
+      const cHours = companyHours?.[dayStr];
+      if (cHours && cHours.isOpen) {
+        start = cHours.open;
+        end = cHours.close;
+      } else {
+        start = '00:00';
+        end = '23:59';
+      }
+    }
+
     const payload = {
       ...formData,
-      startTime: formData.isAllDay ? undefined : formData.startTime,
-      endTime: formData.isAllDay ? undefined : formData.endTime,
+      startTime: start,
+      endTime: end,
     };
 
     try {

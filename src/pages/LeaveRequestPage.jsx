@@ -1,22 +1,29 @@
 import { useState, useEffect } from 'react';
 import { ClipboardList, Check, X, Loader2, ChevronDown } from 'lucide-react';
 import api from '../api/axios';
+import { useLanguage } from '../context/LanguageContext';
+import { managerTranslations } from '../translations/manager';
 
 export default function LeaveRequestPage() {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = managerTranslations[currentLang] || managerTranslations['fr'];
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
   const [expandedUsers, setExpandedUsers] = useState({});
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return "Inconnue";
+    if (!dateStr) return t.leaveUnknownDate;
     try {
       const rawDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
       const parts = rawDate.split('-');
       if (parts.length !== 3) return dateStr;
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     } catch (e) {
-      return "Format invalide";
+      return t.leaveFormatInvalid;
     }
   };
 
@@ -48,8 +55,10 @@ export default function LeaveRequestPage() {
         }
         return req;
       }));
+      setSuccessMsg(action === 'approve' ? t.leaveApproveSuccess : t.leaveRejectSuccess);
+      setTimeout(() => setSuccessMsg(null), 3000);
     } catch (error) {
-      alert("Erreur lors de la mise à jour");
+      setErrorMsg(t.leaveUpdateError);
     } finally {
       setProcessingId(null);
     }
@@ -60,21 +69,35 @@ export default function LeaveRequestPage() {
       <div className="flex justify-between items-center border-b border-slate-800 pb-6">
         <div>
           <h1 className="text-4xl font-black italic tracking-tighter">
-            Gestion des <span className="text-blue-600">Congés</span>
+            {t.leaveTitle} <span className="text-blue-600">{t.leaveTitleSpan}</span>
           </h1>
-          <p className="text-slate-400 font-medium mt-1">Approuvez ou refusez les demandes de vacances de l'équipe.</p>
+          <p className="text-slate-400 font-medium mt-1">{t.leaveSubtitle}</p>
         </div>
       </div>
+
+      {errorMsg && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl font-bold flex justify-between items-center text-sm">
+          {errorMsg}
+          <button onClick={() => setErrorMsg(null)}><X size={20} /></button>
+        </div>
+      )}
+      
+      {successMsg && (
+        <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-2xl font-bold flex justify-between items-center text-sm">
+          {successMsg}
+          <button onClick={() => setSuccessMsg(null)}><X size={20} /></button>
+        </div>
+      )}
 
       <div className="bg-slate-900/50 border border-white/5 rounded-[2rem] overflow-hidden shadow-sm">
         {isLoading ? (
           <div className="p-20 flex flex-col items-center justify-center text-slate-500">
              <Loader2 className="animate-spin mb-2 text-blue-600" size={32} />
-             Chargement...
+             {t.leaveLoading}
           </div>
         ) : requests.length === 0 ? (
           <div className="p-16 text-center font-bold text-slate-400 italic text-xl uppercase bg-slate-900/50 border-2 border-dashed border-white/5 rounded-[2.5rem] m-6">
-            Aucune demande de congé pour le moment.
+            {t.leaveNoRequests}
           </div>
         ) : (
           <div className="p-6 bg-slate-950/50 space-y-4">
@@ -87,7 +110,7 @@ export default function LeaveRequestPage() {
               acc[uid].requests.push(req);
               return acc;
             }, {})).map(({ user, requests }) => {
-              const name = user.firstName ? `${user.firstName} ${user.lastName}` : user.name || user.email || 'Employé inconnu';
+              const name = user.firstName ? `${user.firstName} ${user.lastName}` : user.name || user.email || t.leaveUnknownEmp;
               const pendingCount = requests.filter(r => (r.status || 'PENDING').toUpperCase() === 'PENDING').length;
               const hasPending = pendingCount > 0;
 
@@ -105,10 +128,10 @@ export default function LeaveRequestPage() {
                         <h3 className="font-black text-lg text-white uppercase tracking-tight">{name}</h3>
                         <div className="flex items-center gap-3 text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">
                           <ClipboardList size={14} className={hasPending ? "text-orange-400" : "text-emerald-400"} />
-                          <span>{requests.length} Demande{requests.length > 1 ? 's' : ''}</span>
+                          <span>{requests.length} {requests.length > 1 ? t.leaveRequestsPlural : t.leaveRequest}</span>
                           {hasPending && (
                             <span className="bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-md text-[10px] animate-pulse">
-                              {pendingCount} à traiter
+                              {pendingCount} {t.leaveToProcess}
                             </span>
                           )}
                         </div>
@@ -138,12 +161,12 @@ export default function LeaveRequestPage() {
                                 </div>
                                 <div>
                                   <p className="text-md font-black text-white uppercase tracking-wider">
-                                    Du {formatDate(req.startDate)} au {formatDate(req.endDate)}
+                                    {t.leaveFrom} {formatDate(req.startDate)} {t.leaveTo} {formatDate(req.endDate)}
                                   </p>
                                   
                                   {req.reason && (
                                     <div className="mt-2 p-3 bg-slate-950/50 rounded-xl border border-slate-800 italic">
-                                      <span className="font-bold block text-[10px] not-italic uppercase tracking-wider text-slate-500 mb-1">Raison :</span>
+                                      <span className="font-bold block text-[10px] not-italic uppercase tracking-wider text-slate-500 mb-1">{t.leaveReason}</span>
                                       <p className="text-sm text-slate-300">{req.reason}</p>
                                     </div>
                                   )}
@@ -165,7 +188,7 @@ export default function LeaveRequestPage() {
                                     className="flex-1 md:flex-none px-6 py-3 bg-emerald-500/10 text-emerald-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-500 hover:text-white transition disabled:opacity-50 border border-emerald-500/20 shadow-sm"
                                   >
                                     {processingId === currentId ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} className="stroke-[3]" />}
-                                    Approuver
+                                    {t.leaveApprove}
                                   </button>
                                   
                                   <button 
@@ -174,7 +197,7 @@ export default function LeaveRequestPage() {
                                     className="flex-1 md:flex-none px-6 py-3 bg-red-500/10 text-red-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-500 hover:text-white transition disabled:opacity-50 border border-red-500/20 shadow-sm"
                                   >
                                     {processingId === currentId ? <Loader2 className="animate-spin" size={18} /> : <X size={18} className="stroke-[3]" />}
-                                    Refuser
+                                    {t.leaveReject}
                                   </button>
                                 </div>
                               )}

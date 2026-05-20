@@ -1,7 +1,12 @@
 import React from 'react';
 import { X, Briefcase, Clock, Calendar, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { managerTranslations } from '../../translations/manager';
 
 export default function EmployeeDetailsModal({ detailsUser, setDetailsUser, isDetailsLoading, userShifts, userAvails, formatDate, formatTime }) {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = managerTranslations[currentLang] || managerTranslations['fr'];
   if (!detailsUser) return null;
 
   return (
@@ -20,7 +25,7 @@ export default function EmployeeDetailsModal({ detailsUser, setDetailsUser, isDe
             <div className="flex gap-4 mt-3">
               <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{detailsUser.role}</span>
               <span className="bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{detailsUser.email}</span>
-              <span className="bg-slate-800 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{detailsUser.hourlyRate ? `${detailsUser.hourlyRate}$/h` : "Salaire NC"}</span>
+              <span className="bg-slate-800 text-emerald-400 border border-slate-700 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">{detailsUser.hourlyRate ? `${detailsUser.hourlyRate}$/h` : t.empDetSalaryNC}</span>
             </div>
           </div>
         </div>
@@ -29,13 +34,13 @@ export default function EmployeeDetailsModal({ detailsUser, setDetailsUser, isDe
           {/* SHIFTS */}
           <div>
             <h3 className="font-black text-slate-400 uppercase tracking-widest text-sm flex items-center gap-3 mb-6">
-              <Briefcase size={18} className="text-blue-500" /> Shifts Assignés ({userShifts.length})
+              <Briefcase size={18} className="text-blue-500" /> {t.empDetShiftsAssigned} ({userShifts.length})
             </h3>
             {isDetailsLoading ? (
-              <p className="text-slate-500 italic font-bold">Chargement...</p>
+              <p className="text-slate-500 italic font-bold">{t.empDetLoading}</p>
             ) : userShifts.length === 0 ? (
               <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 text-center text-slate-500 font-bold italic text-sm">
-                Aucun shift assigné.
+                {t.empDetNoShifts}
               </div>
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
@@ -43,7 +48,7 @@ export default function EmployeeDetailsModal({ detailsUser, setDetailsUser, isDe
                   <div key={shift.id} className="bg-slate-950/80 p-4 rounded-2xl border border-white/5 flex justify-between items-center hover:bg-slate-800 transition">
                     <div>
                       <p className="font-black text-white uppercase text-sm">{formatDate(shift.date)}</p>
-                      <p className="text-[9px] font-black text-slate-500 tracking-widest uppercase mt-1">{shift.schedule?.name || 'Cycle Inconnu'}</p>
+                      <p className="text-[9px] font-black text-slate-500 tracking-widest uppercase mt-1">{shift.schedule?.name || t.empDetUnknownCycle}</p>
                     </div>
                     <div className="flex gap-2 items-center bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
                       <Clock size={12} className="text-indigo-400" />
@@ -60,13 +65,13 @@ export default function EmployeeDetailsModal({ detailsUser, setDetailsUser, isDe
           {/* DISPOS */}
           <div>
             <h3 className="font-black text-slate-400 uppercase tracking-widest text-sm flex items-center gap-3 mb-6">
-              <Calendar size={18} className="text-emerald-500" /> Disponibilités de la semaine
+              <Calendar size={18} className="text-emerald-500" /> {t.empDetAvailWeek}
             </h3>
             {isDetailsLoading ? (
-              <p className="text-slate-500 italic font-bold">Chargement...</p>
+              <p className="text-slate-500 italic font-bold">{t.empDetLoading}</p>
             ) : userAvails.length === 0 ? (
               <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 text-center text-slate-500 font-bold italic text-sm">
-                Aucune disponibilité configurée.
+                {t.empDetNoAvail}
               </div>
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
@@ -77,7 +82,7 @@ export default function EmployeeDetailsModal({ detailsUser, setDetailsUser, isDe
                         {avail.dayOfWeek}
                       </p>
                       <p className="text-[9px] font-black text-slate-500 tracking-widest uppercase mt-1">
-                        {avail.isAvailable ? 'Disponible' : 'Indisponible'}
+                        {avail.isAvailable ? t.empDetAvail : t.empDetUnavail}
                       </p>
                     </div>
                     {avail.isAvailable && (

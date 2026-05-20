@@ -1,12 +1,9 @@
 import React from 'react';
-
-import {
-    Loader2,
-    Building2,
-} from 'lucide-react';
-
+import { Loader2, Building2 } from 'lucide-react';
 import SearchBar from './SearchBar';
 import CompanyRow from './CompanyRow';
+import { useLanguage } from '../../../context/LanguageContext';
+import { superadminTranslations } from '../../../translations/superadmin';
 
 const CompaniesTable = ({
     companies,
@@ -16,12 +13,16 @@ const CompaniesTable = ({
     onEdit,
     onDelete,
 }) => {
+    const { lang } = useLanguage();
+    const currentLang = lang ? lang.toLowerCase() : 'fr';
+    const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
+
     return (
         <div
             className="
-        bg-white/80
+        bg-slate-900/50
         backdrop-blur-xl
-        border border-white
+        border border-white/5
         rounded-[2.5rem]
         overflow-hidden
         shadow-sm
@@ -38,7 +39,7 @@ const CompaniesTable = ({
 
                     <Loader2
                         size={40}
-                        className="animate-spin text-indigo-600"
+                        className="animate-spin text-indigo-400"
                     />
 
                 </div>
@@ -49,7 +50,7 @@ const CompaniesTable = ({
                         className="
               w-24 h-24
               rounded-[2rem]
-              bg-indigo-50
+              bg-indigo-500/10
               flex
               items-center
               justify-center
@@ -58,16 +59,16 @@ const CompaniesTable = ({
                     >
                         <Building2
                             size={40}
-                            className="text-indigo-600"
+                            className="text-indigo-400"
                         />
                     </div>
 
-                    <h3 className="text-2xl font-black text-gray-900 mb-2">
-                        Aucune entreprise trouvée
+<h3 className="text-2xl font-black text-white mb-2">
+                        {t.noClientTitle}
                     </h3>
 
-                    <p className="text-gray-500">
-                        Commencez par créer votre premier client.
+                    <p className="text-slate-400">
+                        {t.noClientDesc}
                     </p>
 
                 </div>
@@ -76,7 +77,7 @@ const CompaniesTable = ({
 
                     <table className="w-full">
 
-                        <thead className="border-b border-gray-100">
+                        <thead className="border-b border-white/5">
 
                             <tr
                                 className="
@@ -84,24 +85,24 @@ const CompaniesTable = ({
                   text-[11px]
                   uppercase
                   tracking-[0.25em]
-                  text-gray-400
+                  text-slate-500
                 "
                             >
 
                                 <th className="px-8 py-6">
-                                    Entreprise
+                                    {t.colCompany}
                                 </th>
 
                                 <th className="px-8 py-6">
-                                    Code
+                                    {t.colCode}
                                 </th>
 
                                 <th className="px-8 py-6">
-                                    Status
+                                    {t.colStatus}
                                 </th>
 
                                 <th className="px-8 py-6 text-right">
-                                    Actions
+                                    {t.colActions}
                                 </th>
 
                             </tr>

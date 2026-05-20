@@ -5,22 +5,23 @@ const ModalFooter = ({
   loading,
   editingCompany,
   onClose,
+  t
 }) => {
   return (
-    <div className="sticky bottom-0 bg-white border-t border-gray-100 px-8 py-5 flex justify-end gap-3">
+    <div className="sticky bottom-0 bg-slate-900 border-t border-white/5 px-8 py-5 flex justify-end gap-3">
 
       <button
         type="button"
         onClick={onClose}
-        className="px-5 py-2.5 rounded-xl border border-gray-200 font-semibold text-gray-700 hover:bg-gray-50"
+        className="px-5 py-2.5 rounded-xl border border-white/10 font-bold text-slate-300 hover:bg-slate-800 transition-colors"
       >
-        Annuler
+        {t.cancelBtn}
       </button>
 
       <button
         type="submit"
         disabled={loading}
-        className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold flex items-center gap-2 disabled:opacity-50"
+        className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center gap-2 disabled:opacity-50 transition-colors"
       >
 
         {loading ? (
@@ -33,8 +34,8 @@ const ModalFooter = ({
         )}
 
         {editingCompany
-          ? 'Sauvegarder'
-          : 'Lancer le déploiement'}
+          ? t.confirmEditBtn
+          : t.confirmDeployBtn}
 
       </button>
     </div>

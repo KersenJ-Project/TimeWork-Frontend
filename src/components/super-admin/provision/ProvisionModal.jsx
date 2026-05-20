@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
@@ -7,6 +8,8 @@ import CompanySection from './CompanySection';
 import ManagerSection from './ManagerSection';
 import HoursSection from './HoursSection';
 import RolesSection from './RolesSection';
+import { useLanguage } from '../../../context/LanguageContext';
+import { superadminTranslations } from '../../../translations/superadmin';
 
 import './style.css';
 
@@ -44,7 +47,13 @@ const ProvisionModal = ({
   onSuccess,
   editingCompany,
 }) => {
+  const { lang } = useLanguage();
+  const currentLang = lang ? lang.toLowerCase() : 'fr';
+  const t = superadminTranslations[currentLang] || superadminTranslations['fr'];
+
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successData, setSuccessData] = useState(null);
 
   const [formData, setFormData] = useState({
     companyName: '',
@@ -62,6 +71,9 @@ const ProvisionModal = ({
   });
 
   useEffect(() => {
+    setErrorMsg(null);
+    setSuccessData(null);
+    
     if (!editingCompany) {
       setFormData({
         companyName: '',
@@ -105,7 +117,7 @@ const ProvisionModal = ({
             }))
           : [defaultRole],
     });
-  }, [editingCompany]);
+  }, [editingCompany, isOpen]);
 
   if (!isOpen) return null;
 
@@ -174,6 +186,7 @@ const ProvisionModal = ({
 
  const handleSubmit = async (e) => {
   e.preventDefault();
+  setErrorMsg(null);
 
   try {
     setLoading(true);
@@ -181,10 +194,9 @@ const ProvisionModal = ({
     
     const formattedHours = {};
     Object.entries(formData.operatingHours).forEach(([day, hours]) => {
-      const isClosed = hours.open === hours.close;
       formattedHours[day] = {
         ...hours,
-        isOpen: !isClosed,
+        isOpen: hours.isOpen,
       };
     });
 
@@ -201,7 +213,8 @@ const ProvisionModal = ({
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        alert('Entreprise modifiée avec succès');
+        onSuccess();
+        onClose();
       } else {
         const res = await axios.post(
           'http://localhost:3000/super-admin/provision',
@@ -211,22 +224,16 @@ const ProvisionModal = ({
           }
         );
 
-        alert(`
-          Déploiement réussi !
-
-          Code entreprise:
-          ${res.data.companyCode}
-
-          Mot de passe temporaire:
-          ${res.data.tempPassword}
-        `);
+        setSuccessData({
+          code: res.data.companyCode,
+          pwd: res.data.tempPassword
+        });
+        onSuccess();
       }
 
-      onSuccess();
-      onClose();
     } catch (err) {
       console.error(err);
-      alert(
+      setErrorMsg(
         err?.response?.data?.message || 'Erreur lors du provisioning'
       );
     } finally {
@@ -234,16 +241,51 @@ const ProvisionModal = ({
     }
   };
 
+  if (successData) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+        <div className="relative w-full max-w-md bg-slate-900 rounded-[3rem] p-10 shadow-2xl border border-white/10 text-center animate-in fade-in slide-in-from-bottom-4">
+          <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={40} className="text-emerald-500" />
+          </div>
+          <h2 className="text-2xl font-black text-white italic tracking-tighter mb-4">{t.deploySuccessTitle} <span className="text-emerald-500">{t.deploySuccessHighlight}</span></h2>
+          <p className="text-slate-400 font-medium mb-8">{t.deploySuccessDesc}</p>
+          
+          <div className="space-y-4 mb-8">
+            <div className="bg-slate-950 p-4 rounded-2xl border border-white/5">
+              <span className="block text-[10px] font-black uppercase text-slate-500 mb-1 tracking-widest">{t.companyCode}</span>
+              <span className="block font-mono text-xl font-bold text-emerald-400">{successData.code}</span>
+            </div>
+            <div className="bg-slate-950 p-4 rounded-2xl border border-white/5">
+              <span className="block text-[10px] font-black uppercase text-slate-500 mb-1 tracking-widest">{t.tempPassword}</span>
+              <span className="block font-mono text-xl font-bold text-white">{successData.pwd}</span>
+            </div>
+          </div>
+
+          <button onClick={() => { setSuccessData(null); onClose(); }} className="w-full bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-slate-700 transition">{t.closeBtn}</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
       <div
         onClick={onClose}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm"
       />
 
-      <div className="relative flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl border border-gray-200 overflow-hidden flex flex-col max-h-[92vh]">
-          <ModalHeader editingCompany={editingCompany} onClose={onClose} />
+      <div className="relative flex items-start justify-center min-h-screen p-4 pt-20 pb-10">
+        <div className="w-full max-w-6xl bg-slate-900 rounded-[3rem] shadow-2xl border border-white/10 overflow-hidden flex flex-col my-auto text-white">
+          <ModalHeader editingCompany={editingCompany} onClose={onClose} t={t} />
+
+          {errorMsg && (
+            <div className="m-8 mb-0 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400 font-bold text-sm">
+              <AlertCircle size={20} />
+              {typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
             <div className="p-8 space-y-10">
@@ -251,16 +293,19 @@ const ProvisionModal = ({
                 <CompanySection
                   formData={formData}
                   updateField={updateField}
+                  t={t}
                 />
                 <ManagerSection
                   formData={formData}
                   updateField={updateField}
+                  t={t}
                 />
               </div>
 
               <HoursSection
                 formData={formData}
                 updateHours={updateHours}
+                t={t}
               />
 
               <RolesSection
@@ -269,6 +314,7 @@ const ProvisionModal = ({
                 removeRole={removeRole}
                 updateRole={updateRole}
                 updateStaffing={updateStaffing}
+                t={t}
               />
             </div>
 
@@ -276,6 +322,7 @@ const ProvisionModal = ({
               loading={loading}
               editingCompany={editingCompany}
               onClose={onClose}
+              t={t}
             />
           </form>
         </div>
